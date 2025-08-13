@@ -477,8 +477,9 @@ export default function SearchWidget() {
             </div>
           </div>
         )}
-        {/* Show tours and museums in a single unified list */}
-        <div className="w-1/3 max-w-md mr-4">
+        {/* Show tours and museums list and details side-by-side */}
+        <div className="flex items-start gap-2">
+          <div className="w-1/3 max-w-md mr-4">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Tour & Museum List</h2>
           <div className="bg-white rounded-lg overflow-y-auto max-h-96 border border-gray-300 shadow-sm">
             {/* Tours Section */}
@@ -486,7 +487,7 @@ export default function SearchWidget() {
               <div>
                 {tours.map((item, idx) => (
                   <div key={item.uuid}>
-                    <div className="flex justify-between items-center border-b border-gray-200 p-4 hover:bg-gray-50">
+                      <div className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? 'bg-[#0E5671] text-white' : 'hover:bg-gray-50'}`}>
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
@@ -494,7 +495,7 @@ export default function SearchWidget() {
                           onChange={() => toggleSelection(item.uuid)}
                           className="text-purple-600"
                         />
-                                              <span className="font-semibold cursor-pointer text-gray-800" onClick={() => {
+                        <span className="font-semibold cursor-pointer text-gray-800" onClick={() => {
                         if (!limitReached) {
                           setExpandedIdx(expandedIdx.type === 'tour' && expandedIdx.idx === idx ? { type: null, idx: null } : { type: 'tour', idx });
                           // Toggle tour details - if same tour is clicked, hide it
@@ -517,29 +518,37 @@ export default function SearchWidget() {
                     </div>
                     {/* Children list below the selected tour */}
                     {expandedIdx.type === 'tour' && expandedIdx.idx === idx && (
-                      <div className="bg-gray-50 px-6 py-2 border-l-4 border-purple-500">
-                        <div className="font-semibold text-purple-700 mb-2">Children</div>
+                      <div className="bg-gray-50 py-2 border-l-4 border-purple-500">
                         {(item.content?.[0]?.children?.length > 0) ? (
-                          <ul className="mb-2">
-                            {item.content[0].children.map((child, cidx) => (
-                              <li key={cidx} className="py-2 border-b border-gray-200 last:border-b-0">
-                                <div 
-                                  className={`flex items-center gap-2 cursor-pointer py-1 px-2 rounded transition-colors ${
-                                    selectedChild && selectedChild.uuid === child.uuid 
-                                      ? 'bg-blue-500 text-white' 
-                                      : 'hover:text-purple-600'
-                                  }`}
-                                  onClick={() => handleSelectChild(child, item)}
-                                >
-                                  {child.images?.[0]?.url && <img src={child.images[0].url} alt={child.title} className="w-6 h-6 object-cover rounded" />}
-                                  <span className="font-medium">{child.title || 'No title'}</span>
-                                  {fetchingChildDetails && selectedChild && selectedChild.uuid === child.uuid && (
-                                    <span className="ml-2 text-xs text-blue-600">Loading...</span>
-                                  )}
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="relative">
+                            <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
+                            <ol className="mb-2">
+                              {item.content[0].children.map((child, cidx) => {
+                                const isSelected = selectedChild && selectedChild.uuid === child.uuid;
+                                return (
+                                    <li
+                                      key={cidx}
+                                      className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? 'bg-[#0E5671] text-white rounded' : ''}`}
+                                      onClick={() => handleSelectChild(child, item)}
+                                    >
+                                      <span className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? 'bg-[#0E5671] border-[#0E5671] text-white' : 'bg-white border-gray-300 text-gray-700'} inline-flex items-center justify-center text-xs font-bold`}>{cidx + 1}</span>
+                                      {child.images?.[0]?.url ? (
+                                        <img src={child.images[0].url} alt={child.title} className="w-12 h-12 object-cover rounded mr-3" />
+                                      ) : (
+                                        <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">N/A</div>
+                                      )}
+                                      <span className="font-medium">{child.title || 'No title'}</span>
+                                      <span className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? 'border-white text-white' : 'border-gray-300 text-gray-400'}`}>
+                                        ›
+                                      </span>
+                                      {fetchingChildDetails && isSelected && (
+                                        <span className="ml-2 text-xs text-white">Loading...</span>
+                                      )}
+                                    </li>
+                                );
+                              })}
+                            </ol>
+                          </div>
                         ) : (
                           <div className="text-gray-500">No children available.</div>
                         )}
@@ -555,7 +564,7 @@ export default function SearchWidget() {
               <div>
                 {museums.map((item, idx) => (
                   <div key={item.uuid}>
-                    <div className="flex justify-between items-center border-b border-gray-200 p-4 hover:bg-gray-50">
+                      <div className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? 'bg-[#0E5671] text-white' : 'hover:bg-gray-50'}`}>
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
@@ -586,29 +595,37 @@ export default function SearchWidget() {
                     </div>
                     {/* References list below the selected museum */}
                     {expandedIdx.type === 'museum' && expandedIdx.idx === idx && (
-                      <div className="bg-gray-50 px-6 py-2 border-l-4 border-purple-500">
-                        <div className="font-semibold text-purple-700 mb-2">References</div>
+                      <div className="bg-gray-50 py-2 border-l-4 border-purple-500">
                         {(item.content?.[0]?.references?.length > 0) ? (
-                          <ul className="mb-2">
-                            {item.content[0].references.map((ref, ridx) => (
-                              <li key={ridx} className="py-2 border-b border-gray-200 last:border-b-0">
-                                <div 
-                                  className={`flex items-center gap-2 cursor-pointer py-1 px-2 rounded transition-colors ${
-                                    selectedChild && selectedChild.uuid === ref.uuid 
-                                      ? 'bg-blue-500 text-white' 
-                                      : 'hover:text-purple-600'
-                                  }`}
-                                  onClick={() => handleSelectChild(ref, item)}
-                                >
-                                  {ref.images?.[0]?.url && <img src={ref.images[0].url} alt={ref.title} className="w-6 h-6 object-cover rounded" />}
-                                  <span className="font-medium">{ref.title || 'No title'}</span>
-                                  {fetchingChildDetails && selectedChild && selectedChild.uuid === ref.uuid && (
-                                    <span className="ml-2 text-xs text-blue-600">Loading...</span>
-                                  )}
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="relative">
+                             <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
+                            <ol className="mb-2">
+                              {item.content[0].references.map((ref, ridx) => {
+                                const isSelected = selectedChild && selectedChild.uuid === ref.uuid;
+                                return (
+                                  <li
+                                    key={ridx}
+                                    className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? 'bg-[#0E5671] text-white rounded' : ''}`}
+                                    onClick={() => handleSelectChild(ref, item)}
+                                  >
+                                    <span className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? 'bg-[#0E5671] border-[#0E5671] text-white' : 'bg-white border-gray-300 text-gray-700'} inline-flex items-center justify-center text-xs font-bold`}>{ridx + 1}</span>
+                                    {ref.images?.[0]?.url ? (
+                                      <img src={ref.images[0].url} alt={ref.title} className="w-12 h-12 object-cover rounded mr-3" />
+                                    ) : (
+                                      <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">N/A</div>
+                                    )}
+                                    <span className="font-medium">{ref.title || 'No title'}</span>
+                                    <span className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? 'border-white text-white' : 'border-gray-300 text-gray-400'}`}>
+                                      ›
+                                    </span>
+                                    {fetchingChildDetails && isSelected && (
+                                      <span className="ml-2 text-xs text-white">Loading...</span>
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ol>
+                          </div>
                         ) : (
                           <div className="text-gray-500">No references available.</div>
                         )}
@@ -626,16 +643,13 @@ export default function SearchWidget() {
               </div>
             )}
           </div>
-        </div>
-        
-        {/* Show details on the right side */}
-        {selectedChild || selectedItem ? (
-          <div className={`absolute right-0 w-1/2 h-[40vh] transition-all duration-300 ${
-            selectedChild ? 'top-40' : 'top-40'
-          }`}>
-            <SharedDetailsView selectedChild={selectedChild} selectedItem={selectedItem} limitReached={limitReached} />
           </div>
-        ) : null}
+          {(selectedChild || selectedItem) && (
+            <div className="w-1/3 mt-10 max-h-96 overflow-y-auto">
+              <SharedDetailsView selectedChild={selectedChild} selectedItem={selectedItem} limitReached={limitReached} />
+            </div>
+          )}
+        </div>
 
         <div className="mt-8 mb-4 flex items-center gap-4">
           <button

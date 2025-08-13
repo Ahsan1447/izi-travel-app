@@ -50,8 +50,10 @@
 .p-6 { padding: 1.5rem; }
 .p-4 { padding: 1rem; }
 .p-3 { padding: 0.75rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
 .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
 .px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-5 { padding-left: 0.25rem; padding-right: 0.25rem; }
 .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
 .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
 .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
@@ -62,7 +64,12 @@
 .mb-6 { margin-bottom: 1.5rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
 .mt-8 { margin-top: 2rem; }
+.mt-10 { margin-top: 2.5rem; }
+.mt-12 { margin-top: 3rem; }
+.mt-14 { margin-top: 3.5rem; }
+.mt-16 { margin-top: 4rem; }
 .mr-4 { margin-right: 1rem; }
 .flex { display: flex; }
 .inline-flex { display: inline-flex; }
@@ -106,6 +113,7 @@
 .border-gray-200 { border-color: #e5e7eb; }
 .border-gray-300 { border-color: #d1d5db; }
 .border-gray-400 { border-color: #9ca3af; }
+.border-transparent { border-color: transparent; }
 .border-purple-500 { border-color: #a21caf; }
 .border-red-300 { border-color: #fca5a5; }
 .cursor-pointer { cursor: pointer; }
@@ -122,9 +130,12 @@
 .grid { display: grid; }
 .grid-cols-1 { grid-template-columns: 1fr; }
 .mx-auto { margin-left: auto; margin-right: auto; }
+.ml-auto { margin-left: auto; }
+.mr-3 { margin-right: 0.75rem; }
+.ml-2 { margin-left: 0.5rem; }
 .px-8 { padding-left: 2rem; padding-right: 2rem; }
 .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.mt-6 { margin-top: 1.5rem; }
+/* mt-6 moved above to keep spacing utilities grouped */
 .pr-2 { padding-right: 0.5rem; }
 .pr-6 { padding-right: 1.5rem; }
 .overflow-x-auto { overflow-x: auto; }
@@ -173,6 +184,7 @@
 .top-36 { top: 9rem; }
 .top-38 { top: 9.5rem; }
 .top-40 { top: 10rem; }
+.bottom-0 { bottom: 0; }
 .bottom-16 { bottom: 4rem; }
 .bottom-20 { bottom: 5rem; }
 .last\:border-b-0:last-child { border-bottom: 0; }
@@ -192,3 +204,55 @@
 
 /* Normalize list indentation inside widget */
 .wrapper ul { padding-left: 0; margin-left: 0; list-style: none; }
+
+/* Widget additions for TourDetail timeline and brand color */
+/* Brand blue */
+.bg-\[\#0E5671\] { background: #0E5671; }
+.border-\[\#0E5671\] { border-color: #0E5671; }
+.text-\[\#0E5671\] { color: #0E5671; }
+
+/* Position helpers used by timeline */
+.left-0 { left: 0; }
+.left-3 { left: 0.75rem; }
+.left-4 { left: 1rem; }
+.left-5 { left: 1.25rem; }
+.left-6 { left: 1.5rem; }
+.left-7 { left: 1.75rem; }
+.top-2 { top: 0.5rem; }
+.left-8 { left: 2rem; }
+.left-9 { left: 2.25rem; }
+.left-10 { left: 2.5rem; }
+.left-11 { left: 2.75rem; }
+.left-12 { left: 3rem; }
+.left-13 { left: 3.25rem; }
+.left-14 { left: 3.5rem; }
+.left-15 { left: 3.75rem; }
+.left-16 { left: 4rem; }
+.left-17 { left: 4.25rem; }
+.left-18 { left: 4.5rem; }
+.left-19 { left: 4.75rem; }
+.left-20 { left: 5rem; }
+
+/* (kept for legacy; TourDetail uses no extra padding) */
+
+/* Translate helpers */
+.-translate-x-1\/2 { transform: translateX(-50%); }
+
+/* Padding-left helpers */
+.pl-8 { padding-left: 2rem; }
+.pl-12 { padding-left: 3rem; }
+.pl-16 { padding-left: 4rem; }
+.pl-20 { padding-left: 5rem; }
+.pl-24 { padding-left: 6rem; }
+
+/* Width helpers */
+.w-px { width: 1px; }
+.w-10 { width: 2.5rem; }
+.mr-3 { margin-right: 0.75rem; }
+.w-10 { width: 2.5rem; }
+.h-10 { height: 2.5rem; }
+.w-12 { width: 3rem; }
+.h-12 { height: 3rem; }
+
+/* Hover helpers used */
+.hover\:bg-gray-100:hover { background: #f3f4f6; }
