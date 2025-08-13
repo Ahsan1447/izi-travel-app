@@ -25,3 +25,7 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.wrapper{
+  @apply flex flex-col items-center justify-start p-8 bg-gray-100 text-gray-800 min-h-screen ;
+}

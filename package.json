@@ -5,19 +5,26 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:es": "esbuild esbuild/widget-entry.jsx --bundle --outfile=public/widget.js --platform=browser --minify --target=es2020 --define:process.env.NODE_ENV='\"production\"'",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.865.0",
+    "amazon-cognito-identity-js": "^6.3.12",
+    "next": "15.4.6",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "13.5.11"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "autoprefixer": "^10",
-    "postcss": "^8",
-    "tailwindcss": "^3",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.8",
+    "esbuild-plugin-inline-css": "^0.0.1",
+    "esbuild-style-plugin": "^1.6.3",
     "eslint": "^8",
-    "eslint-config-next": "13.5.11"
+    "eslint-config-next": "13.5.11",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^3.4.17"
   }
 }
