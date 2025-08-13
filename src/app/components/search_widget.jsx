@@ -33,6 +33,8 @@ export default function SearchWidget() {
   const [selectedUuids, setSelectedUuids] = useState({})
   const [isSavingCollection, setIsSavingCollection] = useState(false)
   const [storedApiKey, setStoredApiKey] = useState('')
+  const [childDetailsCache, setChildDetailsCache] = useState({})
+  const [fetchingChildDetails, setFetchingChildDetails] = useState(false)
 
   // Check user limit on component mount
   useEffect(() => {
@@ -67,15 +69,95 @@ export default function SearchWidget() {
   }
 
   // Function to handle child/reference selection with limit check
-  const handleSelectChild = (child, item) => {
+  const handleSelectChild = async (child, item) => {
     if (limitReached) {
       setError('Your credit limit has been reached. Please upgrade your plan to continue viewing details.')
       return
     }
     
-    setSelectedChild(child)
-    setSelectedItem(item)
-    setError('') // Clear any previous errors
+    // Check if we already have the details for this child
+    if (childDetailsCache[child.uuid]) {
+      setSelectedChild(childDetailsCache[child.uuid])
+      setSelectedItem(item)
+      setError('')
+      return
+    }
+    
+    // Fetch details for the child using DetailsMutation
+    setFetchingChildDetails(true)
+    setError('')
+    
+    try {
+      const response = await fetch('http://localhost:3000/graphql', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/izi-client-private-api-v1.0+json',
+          'X-IZI-API-KEY': '350e8400-e29b-41d4-a716-446655440003',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: `
+            mutation DetailsMutation($input: DetailsMutationInput!) {
+              mtgObjectDetails(input: $input) {
+                mtgObjectDetail {
+                  status
+                  type
+                  title
+                  uuid
+                  language
+                  description
+                  userLimit
+                  images {
+                    url
+                  }
+                  content {
+                    audio {
+                      url
+                    }
+                  }
+                }
+              }
+            }
+          `,
+          variables: {
+            input: {
+              uuid: child.uuid,
+              languages: [child.language || "any"]
+            }
+          }
+        })
+      })
+      
+      const { data, errors } = await response.json()
+      
+      if (errors) {
+        throw new Error(errors[0]?.message || 'Error fetching child details')
+      }
+      
+      const childDetails = data?.mtgObjectDetails?.mtgObjectDetail
+      
+      if (childDetails) {
+        // Cache the fetched details
+        setChildDetailsCache(prev => ({
+          ...prev,
+          [child.uuid]: childDetails
+        }))
+        
+        // Set the selected child with full details
+        setSelectedChild(childDetails)
+        setSelectedItem(item)
+      } else {
+        throw new Error('No details found for this item')
+      }
+      
+    } catch (err) {
+      setError(err.message || 'Failed to fetch child details')
+      // Fallback to showing basic child info
+      setSelectedChild(child)
+      setSelectedItem(item)
+    } finally {
+      setFetchingChildDetails(false)
+    }
   }
 
   const toggleLanguage = (code) => {
@@ -126,6 +208,8 @@ export default function SearchWidget() {
                   content {
                     audio { url }
                     references {
+                      uuid
+                      language
                       affiliateLink
                       title
                       description
@@ -133,6 +217,8 @@ export default function SearchWidget() {
                       content { audio { url } }
                     }
                     children {
+                      uuid
+                      language
                       affiliateLink
                       title
                       description
@@ -249,7 +335,7 @@ export default function SearchWidget() {
               <li
                 key={i}
                 className="mb-1 flex items-center cursor-pointer hover:text-purple-400"
-                onClick={() => { setSelectedChild(child); }}
+                onClick={() => { handleSelectChild(child, item); }}
               >
                 {child.images?.[0]?.url && (
                   <img src={child.images[0].url} alt={child.title} className="w-8 h-8 object-cover rounded mr-2" />
@@ -287,12 +373,12 @@ export default function SearchWidget() {
                 {ref.images?.[0]?.url && (
                   <img src={ref.images[0].url} alt={ref.title} className="w-8 h-8 object-cover rounded mr-2" />
                 )}
-                <span className="cursor-pointer hover:text-purple-400" onClick={() => setSelectedChild(ref)}>
+                <span className="cursor-pointer hover:text-purple-400" onClick={() => handleSelectChild(ref, item)}>
                   {ref.title || 'No title'}
                 </span>
                 <button
                   className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs ml-2"
-                  onClick={e => { e.stopPropagation(); setSelectedChild(ref); }}
+                  onClick={e => { e.stopPropagation(); handleSelectChild(ref, item); }}
                 >
                   View Details
                 </button>
@@ -426,7 +512,7 @@ export default function SearchWidget() {
                         className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
                         onClick={() => handleViewDetails(item, 'tour', idx)}
                       >
-                        Visit Tour
+                        More Details
                       </button>
                     </div>
                     {/* Children list below the selected tour */}
@@ -439,7 +525,7 @@ export default function SearchWidget() {
                               <li key={cidx} className="py-2 border-b border-gray-200 last:border-b-0">
                                 <div 
                                   className={`flex items-center gap-2 cursor-pointer py-1 px-2 rounded transition-colors ${
-                                    selectedChild && selectedChild.title === child.title 
+                                    selectedChild && selectedChild.uuid === child.uuid 
                                       ? 'bg-blue-500 text-white' 
                                       : 'hover:text-purple-600'
                                   }`}
@@ -447,6 +533,9 @@ export default function SearchWidget() {
                                 >
                                   {child.images?.[0]?.url && <img src={child.images[0].url} alt={child.title} className="w-6 h-6 object-cover rounded" />}
                                   <span className="font-medium">{child.title || 'No title'}</span>
+                                  {fetchingChildDetails && selectedChild && selectedChild.uuid === child.uuid && (
+                                    <span className="ml-2 text-xs text-blue-600">Loading...</span>
+                                  )}
                                 </div>
                               </li>
                             ))}
@@ -505,7 +594,7 @@ export default function SearchWidget() {
                               <li key={ridx} className="py-2 border-b border-gray-200 last:border-b-0">
                                 <div 
                                   className={`flex items-center gap-2 cursor-pointer py-1 px-2 rounded transition-colors ${
-                                    selectedChild && selectedChild.title === ref.title 
+                                    selectedChild && selectedChild.uuid === ref.uuid 
                                       ? 'bg-blue-500 text-white' 
                                       : 'hover:text-purple-600'
                                   }`}
@@ -513,6 +602,9 @@ export default function SearchWidget() {
                                 >
                                   {ref.images?.[0]?.url && <img src={ref.images[0].url} alt={ref.title} className="w-6 h-6 object-cover rounded" />}
                                   <span className="font-medium">{ref.title || 'No title'}</span>
+                                  {fetchingChildDetails && selectedChild && selectedChild.uuid === ref.uuid && (
+                                    <span className="ml-2 text-xs text-blue-600">Loading...</span>
+                                  )}
                                 </div>
                               </li>
                             ))}
