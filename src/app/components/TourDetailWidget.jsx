@@ -310,12 +310,14 @@ export default function TourDetailWidget() {
                               {item.title}
                             </span>
                           </div>
-                          <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
-                            onClick={() => handleViewDetails(item, "tour", idx)}
-                          >
-                            More Details
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="bg-custom-red-50 custom-button text-white px-4 py-1 rounded text-sm truncate"
+                              onClick={() => handleViewDetails(item, "tour", idx)}
+                            >
+                              More Details
+                            </button>
+                           </div>
                         </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (

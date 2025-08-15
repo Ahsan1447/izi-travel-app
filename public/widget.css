@@ -275,3 +275,7 @@
   background-color: #0E5671 !important;
   border-radius: 0px;
 }
+
+.custom-button:hover{
+  background-color: #0E5671 !important;
+}
