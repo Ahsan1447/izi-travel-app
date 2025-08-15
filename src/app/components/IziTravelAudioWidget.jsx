@@ -5,7 +5,7 @@ export default function IziTravelAudioWidget({ uuid, language }) {
   return (
     <div>
       {}
-      <script src="http://localhost:3000/widget.js"></script>
+      <script src="http://client-private-api-stage.izi.travel/widget.js"></script>
       <audio-tours
         uuid={uuid}
         language={language}
