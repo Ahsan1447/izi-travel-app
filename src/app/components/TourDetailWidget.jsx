@@ -269,7 +269,7 @@ export default function TourDetailWidget() {
   }
 
   return (
-    <main className="wrapper min-h-screen bg-gray-100 text-gray-800">
+    <main className="wrapper min-h-screen bg-custom-blue-100 text-white">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative overflow-hidden">
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
@@ -292,7 +292,7 @@ export default function TourDetailWidget() {
         <div className="flex items-start gap-2">
           {!loading && !error && (
             <div className="w-1/3 max-w-md mr-4">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Tour & Museum List</h2>
+              <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
               <div className="bg-white rounded-lg overflow-y-auto max-h-96 border border-gray-300 shadow-sm">
                 {/* Tours Section */}
                 {tours.length > 0 && (
@@ -311,7 +311,7 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <button
-                            className="bg-fuchsia-600 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
                             onClick={() => handleViewDetails(item, "tour", idx)}
                           >
                             More Details
@@ -319,21 +319,21 @@ export default function TourDetailWidget() {
                         </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                          <div className="bg-gray-50 px-2 py-2 border-l-4 border-purple-500">
+                          <div className="border-custom-gray-300 border-l-4 border-purple-500">
                             {item.content?.[0]?.children?.length > 0 ? (
                               <div className="relative">
                                 <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>
-                                <ol className="mb-2">
+                                <ol className="margin-0 padding-0">
                                   {item.content[0].children.map((child, cidx) => {
                                     const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                     return (
                                       <li
                                         key={cidx}
-                                        className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                                        className={`relative pl-8 py-2 border flex items-center bg-custom-blue-50 cursor-pointer ${isSelected ? "test" : ""}`}
                                         onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
-                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                         >
                                           {cidx + 1}
                                         </span>
@@ -344,24 +344,24 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">
+                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-white text-xs font-semibold mr-3">
                                             N/A
                                           </div>
                                         )}
-                                        <span className="font-medium">{child.title || "No title"}</span>
+                                        <span className="font-medium truncate">{child.title || "No title"}</span>
                                         {isSelected && child.affiliateLink && (
                                           <a
                                             href={child.affiliateLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white bg-custom-blue-50"}`}
+                                            className={`ml-2 px-2 py-1 rounded text-xs no-underline ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white bg-custom-blue-50"}`}
                                             onClick={(e) => e.stopPropagation()}
                                           >
                                             Affiliate
                                           </a>
                                         )}
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`}
                                         >
                                           ›
                                         </span>
@@ -374,7 +374,7 @@ export default function TourDetailWidget() {
                                 </ol>
                               </div>
                             ) : (
-                              <div className="text-gray-500">No children available.</div>
+                              <div className="text-white">No children available.</div>
                             )}
                           </div>
                         )}
@@ -389,7 +389,7 @@ export default function TourDetailWidget() {
                     {museums.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
+                          className={`flex justify-between items-center border-b border-custom-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
@@ -408,7 +408,7 @@ export default function TourDetailWidget() {
                         </div>
                         {/* References list below the selected museum */}
                         {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
-                          <div className="bg-gray-50 px-2 py-2 border-l-4 border-purple-500">
+                          <div className="bg-custom-blue-50 px-2 py-2 border-l-4 border-purple-500">
                             {item.content[0]?.references?.length > 0 ? (
                               <div className="relative">
                                 <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>
@@ -418,7 +418,7 @@ export default function TourDetailWidget() {
                                     return (
                                       <li
                                         key={ridx}
-                                        className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                                        className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-[#D60D46] text-white rounded" : ""}`}
                                         onClick={() => handleSelectChild(ref, item)}
                                       >
                                         <span
@@ -433,7 +433,7 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">
+                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-white text-xs font-semibold mr-3">
                                             N/A
                                           </div>
                                         )}
@@ -450,7 +450,7 @@ export default function TourDetailWidget() {
                                           </a>
                                         )}
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`}
                                         >
                                           ›
                                         </span>
@@ -463,7 +463,7 @@ export default function TourDetailWidget() {
                                 </ol>
                               </div>
                             ) : (
-                              <div className="text-gray-500">No references available.</div>
+                              <div className="text-white">No references available.</div>
                             )}
                           </div>
                         )}
@@ -474,7 +474,7 @@ export default function TourDetailWidget() {
 
                 {/* No results message */}
                 {tours.length === 0 && museums.length === 0 && results.length > 0 && (
-                  <div className="p-4 text-center text-gray-500">No published tours or museums found.</div>
+                  <div className="p-4 text-center text-white">No published tours or museums found.</div>
                 )}
               </div>
             </div>

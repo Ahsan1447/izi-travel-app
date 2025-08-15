@@ -386,11 +386,11 @@ export default function SearchWidget() {
               return (
                 <li
                   key={ridx}
-                  className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                  className={`relative pl-8 py-2 flex items-center bg-customr-red-50 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
                   onClick={() => handleSelectChild(ref, item)}
                 >
                   <span
-                    className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                    className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white [#0E5671] text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                   >
                     {ridx + 1}
                   </span>
@@ -443,7 +443,7 @@ export default function SearchWidget() {
   }
 
   return (
-    <main className="wrapper min-h-screen bg-custom-blue-100 text-gray-800">
+    <main className="wrapper min-h-screen bg-custom-blue-100 text-gray-800 bg-custom-blue-50">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative">
         <form
           onSubmit={(e) => {
@@ -453,7 +453,7 @@ export default function SearchWidget() {
           className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
           <div>
-            <label className="block text-sm mb-1 text-gray-700">Tour or Museum name</label>
+            <label className="block text-sm mb-1 text-white">Tour or Museum name</label>
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -463,7 +463,7 @@ export default function SearchWidget() {
             />
           </div>
           <div>
-            <label className="block text-sm mb-1 text-gray-700">City</label>
+            <label className="block text-sm mb-1 text-white">City</label>
             <input
               value={region}
               onChange={(e) => setRegion(e.target.value)}
@@ -472,7 +472,7 @@ export default function SearchWidget() {
             />
           </div>
           <div className="relative">
-            <label className="block text-sm mb-1 text-gray-700">Select Languages</label>
+            <label className="block text-sm mb-1 text-white">Select Languages</label>
             <button
               type="button"
               onClick={() => setShowLangDropdown(!showLangDropdown)}
@@ -535,7 +535,7 @@ export default function SearchWidget() {
         {/* Show tours and museums list, details and map side-by-side */}
         <div className="flex items-start gap-2">
           <div className="w-1/3 max-w-md mr-4">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Tour & Museum List</h2>
+            <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
             <div className="bg-white rounded-lg overflow-y-auto max-h-96 border border-gray-300 shadow-sm">
               {/* Tours Section */}
               {tours.length > 0 && (
@@ -577,7 +577,7 @@ export default function SearchWidget() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
                             onClick={() => handleViewDetails(item, "tour", idx)}
                           >
                             More Details
@@ -596,11 +596,11 @@ export default function SearchWidget() {
                                   return (
                                     <li
                                       key={cidx}
-                                      className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                                      className={`relative pl-8 py-2 flex items-center border border-white cursor-pointer ${isSelected ? "bg-[#D60D46] text-white rounded" : ""}`}
                                       onClick={() => handleSelectChild(child, item)}
                                     >
                                       <span
-                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                       >
                                         {cidx + 1}
                                       </span>
@@ -628,7 +628,7 @@ export default function SearchWidget() {
                                         </a>
                                       )}
                                       <span
-                                        className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
+                                        className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400 truncate"}`}
                                       >
                                         ›
                                       </span>
@@ -690,7 +690,7 @@ export default function SearchWidget() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
                             onClick={() => handleViewDetails(item, "museum", idx)}
                           >
                             Visit Museum
@@ -709,11 +709,11 @@ export default function SearchWidget() {
                                   return (
                                     <li
                                       key={ridx}
-                                      className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                                      className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
                                       onClick={() => handleSelectChild(ref, item)}
                                     >
                                       <span
-                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-custom-gray-300 text-white"} inline-flex items-center justify-center text-xs font-bold`}
                                       >
                                         {ridx + 1}
                                       </span>
@@ -794,7 +794,7 @@ export default function SearchWidget() {
 
         <div className="mt-8 mb-4 flex items-center gap-4">
           <button
-            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded disabled:opacity-60"
+            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded"
             onClick={createWidget}
             disabled={isSavingCollection || Object.values(selectedUuids).every((v) => !v)}
           >

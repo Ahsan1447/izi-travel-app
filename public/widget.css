@@ -112,7 +112,7 @@
 .border-l-4 { border-left-width: 4px; }
 .border-r { border-right: 1px solid #9ca3af; }
 .border-gray-200 { border-color: #e5e7eb; }
-.border-gray-300 { border-color: #d1d5db; }
+.border-custom-gray-300 { border-color: #FFFFFF; }
 .border-gray-400 { border-color: #9ca3af; }
 .border-transparent { border-color: transparent; }
 .border-purple-500 { border-color: #a21caf; }
@@ -260,3 +260,18 @@
 /* Add to widget.css */
 .bg-blue-500 { background: #3b82f6; }
 .z-10 { z-index: 10; }
+.test{
+  background-color: red !important;
+  border-radius: 0px;
+}
+.margin-0{
+  margin: 0 !important;
+}
+.padding-0{
+  padding: 0 !important;
+}
+
+.custom-blue{
+  background-color: #0E5671 !important;
+  border-radius: 0px;
+}
