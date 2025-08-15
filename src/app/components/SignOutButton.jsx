@@ -23,26 +23,26 @@ export default function SignOutButton() {
   const handleSignOut = () => {
     try {
       console.log('Starting sign out process...')
-      
+
       const userBefore = localStorage.getItem('user')
       console.log('User data before removal:', userBefore)
 
       localStorage.removeItem('user')
-      
+
       const userAfter = localStorage.getItem('user')
       console.log('User data after removal:', userAfter)
-      
+
       sessionStorage.clear()
       console.log('Session storage cleared')
-      
-      document.cookie.split(";").forEach(function(c) { 
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       })
       console.log('Cookies cleared')
-      
+
       setIsSignedIn(false)
       console.log('Local state updated to signed out')
-      
+
       console.log('Redirecting to signin page...')
       window.location.href = '/signin'
     } catch (error) {
@@ -56,7 +56,7 @@ export default function SignOutButton() {
   return (
     <button
       onClick={handleSignOut}
-      className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow"
+      className="inline-flex items-center gap-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded-md text-sm font-medium shadow"
       aria-label="Sign out"
     >
       Sign out

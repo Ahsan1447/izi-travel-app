@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import { useState, useEffect } from "react"
 import SharedDetailsView from "./SharedDetailsView"
 
@@ -196,6 +197,7 @@ export default function SearchWidget() {
                   title
                   description
                   language
+                  affiliateLink
                   images { url }
                   type
                   location{
@@ -322,7 +324,7 @@ export default function SearchWidget() {
       <div className="flex justify-between items-center cursor-pointer hover:bg-gray-700" onClick={() => onExpand(idx)}>
         <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
         <button
-          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
+          className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
           onClick={(e) => {
             e.stopPropagation()
             setSelectedItem(selectedItem && selectedItem.title === item.title ? null : item)
@@ -365,7 +367,7 @@ export default function SearchWidget() {
       <div className="flex justify-between items-center cursor-pointer hover:bg-gray-700" onClick={() => onExpand(idx)}>
         <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
         <button
-          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
+          className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
           onClick={(e) => {
             e.stopPropagation()
             setSelectedItem(selectedItem && selectedItem.title === item.title ? null : item)
@@ -441,7 +443,7 @@ export default function SearchWidget() {
   }
 
   return (
-    <main className="wrapper min-h-screen bg-gray-100 text-gray-800">
+    <main className="wrapper min-h-screen bg-custom-blue-100 text-gray-800">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative">
         <form
           onSubmit={(e) => {
@@ -494,7 +496,7 @@ export default function SearchWidget() {
                     (opt) => !langSearch.trim() || opt.name.toLowerCase().includes(langSearch.trim().toLowerCase()),
                   ),
                 ].map(({ code, name }) => (
-                  <div key={code} className="flex items-center px-3 py-1 hover:bg-gray-100">
+                  <div key={code} className="flex items-center px-3 py-1 hover:bg-custom-blue-100">
                     <input
                       type="checkbox"
                       checked={languages.includes(code)}
@@ -508,7 +510,7 @@ export default function SearchWidget() {
             )}
           </div>
           <div className="flex items-end">
-            <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+            <button type="submit" className="w-full bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded">
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
@@ -573,16 +575,18 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                        <button
-                          className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
-                          onClick={() => handleViewDetails(item, "tour", idx)}
-                        >
-                          More Details
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            onClick={() => handleViewDetails(item, "tour", idx)}
+                          >
+                            More Details
+                          </button>
+                        </div>
                       </div>
                       {/* Children list below the selected tour */}
                       {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                        <div className="bg-gray-50 py-2 border-l-4 border-purple-500">
+                        <div className="bg-custom-blue-50 py-2 border-l-4 border-purple-500">
                           {item.content?.[0]?.children?.length > 0 ? (
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
@@ -612,6 +616,17 @@ export default function SearchWidget() {
                                         </div>
                                       )}
                                       <span className="font-medium">{child.title || "No title"}</span>
+                                      {isSelected && child.affiliateLink && (
+                                        <a
+                                          href={child.affiliateLink}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white hover:bg-amber-700"}`}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          Affiliate
+                                        </a>
+                                      )}
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                       >
@@ -673,12 +688,14 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                        <button
-                          className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
-                          onClick={() => handleViewDetails(item, "museum", idx)}
-                        >
-                          Visit Museum
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            onClick={() => handleViewDetails(item, "museum", idx)}
+                          >
+                            Visit Museum
+                          </button>
+                        </div>
                       </div>
                       {/* References list below the selected museum */}
                       {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
@@ -712,6 +729,17 @@ export default function SearchWidget() {
                                         </div>
                                       )}
                                       <span className="font-medium">{ref.title || "No title"}</span>
+                                      {isSelected && ref.affiliateLink && (
+                                        <a
+                                          href={ref.affiliateLink}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white hover:bg-amber-700"}`}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          Affiliate
+                                        </a>
+                                      )}
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                       >
@@ -766,7 +794,7 @@ export default function SearchWidget() {
 
         <div className="mt-8 mb-4 flex items-center gap-4">
           <button
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded disabled:opacity-60"
+            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded disabled:opacity-60"
             onClick={createWidget}
             disabled={isSavingCollection || Object.values(selectedUuids).every((v) => !v)}
           >
@@ -791,7 +819,7 @@ export default function SearchWidget() {
 <script src="http://client-private-api-stage.izi.travel/widget.js"><\/script>`}
               </pre>
               <button
-                className="absolute top-2 right-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
+                className="absolute top-2 right-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
                 onClick={() => {
                   const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://client-private-api-stage.izi.travel/widget.css\">\n<script src=\"http://client-private-api-stage.izi.travel/widget.js\"><\/script>`
                   navigator.clipboard.writeText(code.replace(/\\n/g, "\n"))

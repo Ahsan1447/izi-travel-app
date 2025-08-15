@@ -300,7 +300,7 @@ export default function TourDetailWidget() {
                     {tours.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
@@ -311,7 +311,7 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <button
-                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            className="bg-fuchsia-600 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
                             onClick={() => handleViewDetails(item, "tour", idx)}
                           >
                             More Details
@@ -349,6 +349,17 @@ export default function TourDetailWidget() {
                                           </div>
                                         )}
                                         <span className="font-medium">{child.title || "No title"}</span>
+                                        {isSelected && child.affiliateLink && (
+                                          <a
+                                            href={child.affiliateLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white bg-custom-blue-50"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            Affiliate
+                                          </a>
+                                        )}
                                         <span
                                           className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                         >
@@ -378,7 +389,7 @@ export default function TourDetailWidget() {
                     {museums.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
@@ -389,7 +400,7 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <button
-                            className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
                             onClick={() => handleViewDetails(item, "museum", idx)}
                           >
                             Visit Museum
@@ -427,6 +438,17 @@ export default function TourDetailWidget() {
                                           </div>
                                         )}
                                         <span className="font-medium">{ref.title || "No title"}</span>
+                                        {isSelected && ref.affiliateLink && (
+                                          <a
+                                            href={ref.affiliateLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-custom-red-50 text-white hover:bg-custom-blue-50"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            Affiliate
+                                          </a>
+                                        )}
                                         <span
                                           className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                         >

@@ -29,14 +29,7 @@ export default function SharedDetailsView({
   const longitude = location?.longitude != null ? Number(location.longitude) : null
   const hasCoords = Number.isFinite(latitude) && Number.isFinite(longitude)
 
-  // Strictly use provided affiliateLink; no modification, no fallback
-  const ctaLink =
-    selectedChild && selectedChild.affiliateLink
-      ? selectedChild.affiliateLink
-      : selectedItem && selectedItem.affiliateLink
-        ? selectedItem.affiliateLink
-        : null
-
+  
   const getMapUrl = () => {
     const baseUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=16&output=embed`
     return isSatelliteView ? `${baseUrl}&t=k` : baseUrl
@@ -115,17 +108,7 @@ export default function SharedDetailsView({
 
         {showMapInPanel && hasCoords && <MapView />}
 
-        {ctaLink && (
-          <a
-            href={ctaLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex no-underline bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded shadow text-sm font-medium transition-all hover:shadow-lg"
-          >
-            Visit Link
-          </a>
-        )}
-      </div>
+              </div>
     </div>
   )
 }
