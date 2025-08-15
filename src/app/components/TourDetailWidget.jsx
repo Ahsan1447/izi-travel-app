@@ -269,7 +269,7 @@ export default function TourDetailWidget() {
   }
 
   return (
-    <main className="wrapper min-h-screen bg-custom-blue-100 text-white">
+    <main className="bg-custom-blue-100 text-white">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative overflow-hidden">
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
