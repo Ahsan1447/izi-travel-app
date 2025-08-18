@@ -3,7 +3,7 @@ import React from "react"
 import { useState, useEffect } from "react"
 import SharedDetailsView from "./SharedDetailsView"
 
-import LANGUAGE_NAMES from "../search/constants/languages"
+import LANGUAGE_NAMES from "../search/constants/languages";
 
 const languageOptions = Object.entries(LANGUAGE_NAMES).map(([code, name]) => ({
   code,
@@ -88,7 +88,7 @@ export default function SearchWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -180,7 +180,7 @@ export default function SearchWidget() {
         queryFilters: ["title", "description"],
         languages,
       }
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -277,7 +277,7 @@ export default function SearchWidget() {
     }
     setIsSavingCollection(true)
     try {
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -535,8 +535,10 @@ export default function SearchWidget() {
         {/* Show tours and museums list, details and map side-by-side */}
         <div className="flex items-start gap-2">
           <div className="w-1/3 max-w-md mr-4">
-            <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
-            <div className="bg-white rounded-lg overflow-y-auto max-h-96 border border-gray-300 shadow-sm">
+            <h2 className="text-2xl font-bold text-white" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
+            <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
+            style={{height:expandedIdx?.type === "tour" && '402px'}}
+            >
               {/* Tours Section */}
               {tours.length > 0 && (
                 <div>
@@ -586,7 +588,7 @@ export default function SearchWidget() {
                       </div>
                       {/* Children list below the selected tour */}
                       {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                        <div className="bg-custom-blue-50 py-2 border-l-4 border-purple-500">
+                        <div className="bg-custom-blue-50 py-2">
                           {item.content?.[0]?.children?.length > 0 ? (
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
@@ -771,7 +773,7 @@ export default function SearchWidget() {
           </div>
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-10 max-h-96 overflow-y-auto">
+              <div className="w-1/3 mt-10 max-h-402 overflow-y-auto" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -815,13 +817,13 @@ export default function SearchWidget() {
 <script>
   window.API_KEY = "${storedApiKey}";
 <\/script>
-<link rel="stylesheet" href="http://client-private-api-stage.izi.travel/widget.css">
-<script src="http://client-private-api-stage.izi.travel/widget.js"><\/script>`}
+<link rel="stylesheet" href="http://localhost:3000/widget.css">
+<script src="http://localhost:3000/widget.js"><\/script>`}
               </pre>
               <button
                 className="absolute top-2 right-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
                 onClick={() => {
-                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://client-private-api-stage.izi.travel/widget.css\">\n<script src=\"http://client-private-api-stage.izi.travel/widget.js\"><\/script>`
+                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://localhost:3000/widget.css\">\n<script src=\"http://localhost:3000/widget.js\"><\/script>`
                   navigator.clipboard.writeText(code.replace(/\\n/g, "\n"))
                 }}
               >

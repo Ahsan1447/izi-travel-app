@@ -28,24 +28,13 @@ export default function TourDetailWidget() {
     }
   }, [])
 
-  const handleViewDetails = (item, type = null, idx = null) => {
-    if (limitReached) {
-      setError("Your credit limit has been reached. Please upgrade your plan to continue viewing details.")
-      return
-    }
-
-    // Toggle the details box - if same item is clicked, hide it
-    if (selectedItem && selectedItem.uuid === item.uuid) {
-      setSelectedItem(null)
-      setSelectedChild(null)
-    } else {
-      setSelectedItem(item)
-      setSelectedChild(null)
-    }
-
+  const handleViewDetails = (item, type = null, idx = null) => {    // Only toggle the children/references list; do not open parent details
     if (type && idx !== null) {
-      setExpandedIdx(expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx })
+      setExpandedIdx(
+        expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx }
+      )
     }
+    // Do not modify selectedItem/selectedChild here to avoid showing parent details
     setError("")
   }
 
@@ -68,7 +57,7 @@ export default function TourDetailWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -144,20 +133,10 @@ export default function TourDetailWidget() {
   }
 
   const handleTitleClick = (item, type, idx) => {
-    if (limitReached) {
-      setError("Your credit limit has been reached. Please upgrade your plan to continue viewing details.")
-      return
-    }
-
-    setExpandedIdx(expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx })
-    // Toggle tour details - if same tour is clicked, hide it
-    if (selectedItem && selectedItem.uuid === item.uuid) {
-      setSelectedItem(null)
-      setSelectedChild(null)
-    } else {
-      setSelectedItem(item)
-      setSelectedChild(null)
-    }
+    // Only toggle expand/collapse of children; do not show parent details
+    setExpandedIdx(
+      expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx }
+    )
     setError("")
   }
 
@@ -166,7 +145,7 @@ export default function TourDetailWidget() {
     setLoading(true)
     setError("")
 
-    fetch("http://client-private-api-stage.izi.travel/graphql", {
+    fetch("http://localhost:3000/graphql", {
       method: "POST",
       headers: {
         Accept: "application/izi-client-private-api-v1.0+json",
@@ -292,8 +271,9 @@ export default function TourDetailWidget() {
         <div className="flex items-start gap-2">
           {!loading && !error && (
             <div className="w-1/3 max-w-md mr-4">
-              <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
-              <div className="bg-white rounded-lg overflow-y-auto max-h-96 border border-gray-300 shadow-sm">
+              <h2 className="text-2xl font-bold mb-4 text-white" style={{marginBottom:'13px'}}>Tour & Museum List</h2>
+              <div className="bg-white rounded-lg overflow-y-auto border border-gray-300 shadow-sm"
+              style={{height:(expandedIdx?.type === "tour" || expandedIdx?.type == "museum") && '402px'}}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
                   <div>
@@ -483,7 +463,7 @@ export default function TourDetailWidget() {
           )}
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-16 max-h-96 overflow-y-auto">
+              <div className="w-1/3 mt-16 overflow-y-auto" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}

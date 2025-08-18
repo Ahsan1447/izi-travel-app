@@ -61,6 +61,7 @@
 .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
 .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
 .mb-4 { margin-bottom: 1rem; }
+.mb-10{margin-bottom: 10px;}
 .mb-2 { margin-bottom: 0.5rem; }
 .mb-6 { margin-bottom: 1.5rem; }
 .mt-2 { margin-top: 0.5rem; }
@@ -142,6 +143,7 @@
 .overflow-x-auto { overflow-x: auto; }
 .overflow-y-auto { overflow-y: auto; }
 .max-h-96 { max-height: 24rem; }
+.max-h-402 {height: 402px;}
 .object-cover { object-fit: cover; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .select-all { user-select: all; }
@@ -279,3 +281,9 @@
 .custom-button:hover{
   background-color: #0E5671 !important;
 }
+
+.max-h-custom-96 {
+  max-height: 2rem;
+}
+
+.a-max-h-24 { max-height: 7rem !important; }

@@ -19,6 +19,8 @@
 .text-purple-900 { color: #6d28d9; }
 .text-purple-300 { color: #c4b5fd; }
 .text-purple-400 { color: #c084fc; }
+.max-h-402 {height: 402px;}
+.mb-10{margin-bottom: 10px;}
 .hover\:text-purple-300:hover { color: #c4b5fd; }
 .hover\:text-purple-400:hover { color: #c084fc; }
 .text-red-200 { color: #fecaca; }
