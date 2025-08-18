@@ -57,7 +57,7 @@ export default function TourDetailWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -145,7 +145,7 @@ export default function TourDetailWidget() {
     setLoading(true)
     setError("")
 
-    fetch("http://localhost:3000/graphql", {
+    fetch("http://client-private-api-stage.izi.travel/graphql", {
       method: "POST",
       headers: {
         Accept: "application/izi-client-private-api-v1.0+json",
@@ -228,6 +228,7 @@ export default function TourDetailWidget() {
 
   const tours = results.filter((r) => r?.type === "tour" && r.status === "published")
   const museums = results.filter((r) => r?.type === "museum" && r.status === "published")
+  const totalListCount = tours.length + museums.length
 
   const getMarkerNumber = () => {
     if (selectedChild && selectedItem) {
@@ -273,7 +274,7 @@ export default function TourDetailWidget() {
             <div className="w-1/3 max-w-md mr-4">
               <h2 className="text-2xl font-bold mb-4 text-white" style={{marginBottom:'13px'}}>Tour & Museum List</h2>
               <div className="bg-white rounded-lg overflow-y-auto border border-gray-300 shadow-sm"
-              style={{height:(expandedIdx?.type === "tour" || expandedIdx?.type == "museum") && '402px'}}>
+              style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
                   <div>

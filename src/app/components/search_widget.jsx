@@ -88,7 +88,7 @@ export default function SearchWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -180,7 +180,7 @@ export default function SearchWidget() {
         queryFilters: ["title", "description"],
         languages,
       }
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -277,7 +277,7 @@ export default function SearchWidget() {
     }
     setIsSavingCollection(true)
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -423,6 +423,7 @@ export default function SearchWidget() {
 
   const tours = results.filter((r) => r.type === "tour" && r.status === "published")
   const museums = results.filter((r) => r.type === "museum" && r.status === "published")
+  const totalListCount = tours.length + museums.length
 
   const getMarkerNumber = () => {
     if (selectedChild && selectedItem) {
@@ -537,7 +538,7 @@ export default function SearchWidget() {
           <div className="w-1/3 max-w-md mr-4">
             <h2 className="text-2xl font-bold text-white" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
             <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
-            style={{height:expandedIdx?.type === "tour" && '402px'}}
+            style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}
             >
               {/* Tours Section */}
               {tours.length > 0 && (
@@ -773,7 +774,7 @@ export default function SearchWidget() {
           </div>
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-10 max-h-402 overflow-y-auto" style={{height:'402px'}}>
+              <div className="w-1/3 mt-10 overflow-y-auto" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -817,13 +818,13 @@ export default function SearchWidget() {
 <script>
   window.API_KEY = "${storedApiKey}";
 <\/script>
-<link rel="stylesheet" href="http://localhost:3000/widget.css">
-<script src="http://localhost:3000/widget.js"><\/script>`}
+<link rel="stylesheet" href="http://client-private-api-stage.izi.travel/widget.css">
+<script src="http://client-private-api-stage.izi.travel/widget.js"><\/script>`}
               </pre>
               <button
                 className="absolute top-2 right-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
                 onClick={() => {
-                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://localhost:3000/widget.css\">\n<script src=\"http://localhost:3000/widget.js\"><\/script>`
+                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://client-private-api-stage.izi.travel/widget.css\">\n<script src=\"http://client-private-api-stage.izi.travel/widget.js\"><\/script>`
                   navigator.clipboard.writeText(code.replace(/\\n/g, "\n"))
                 }}
               >
