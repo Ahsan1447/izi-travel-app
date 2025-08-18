@@ -383,7 +383,7 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
                             onClick={() => handleViewDetails(item, "museum", idx)}
                           >
                             Visit Museum

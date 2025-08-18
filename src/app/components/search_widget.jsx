@@ -17,6 +17,7 @@ export default function SearchWidget() {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [region, setRegion] = useState("")
+  const [cityInput, setCityInput] = useState("")
   const [languages, setLanguages] = useState(["any"])
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [langSearch, setLangSearch] = useState("")
@@ -164,6 +165,136 @@ export default function SearchWidget() {
           : [...prev.filter((l) => l !== "any"), code]
         return newList.length ? newList : ["any"]
       })
+    }
+  }
+
+  // Helper to get display name for a city (prefer translations if present)
+  const getCityDisplayName = (city) => {
+    try {
+      const t = Array.isArray(city?.translations) ? city.translations : []
+      return (t[0]?.name) || city?.name || ""
+    } catch (_) {
+      return city?.name || ""
+    }
+  }
+
+  // Fetch city suggestions using SearchAttraction mutation
+  const fetchCitySuggestions = async (term) => {
+    const q = (term || "").trim()
+    if (!q) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+
+    const parseCities = (payload) => {
+      let cities = []
+      const d = payload?.data
+      if (Array.isArray(d)) {
+        cities = d.map((i) => i?.city || i).filter(Boolean)
+      } else if (d?.city) {
+        cities = [d.city]
+      } else if (Array.isArray(d?.cities)) {
+        cities = d.cities
+      }
+      // de-duplicate by uuid
+      const seen = new Set()
+      return cities.filter((c) => {
+        const id = c?.uuid || c?.name
+        if (!id || seen.has(id)) return false
+        seen.add(id)
+        return true
+      })
+    }
+
+    try {
+      const resp1 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+        method: "POST",
+        headers: {
+          Accept: "application/izi-client-private-api-v1.0+json",
+          "X-IZI-API-KEY": "350e8400-e29b-41d4-a716-446655440003",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+            mutation SearchAttraction($input: SearchAttractionMutationInput!) {
+              search(input: $input) {
+                errors { code message }
+                success
+                data {
+                  city {
+                    uuid
+                    name
+                    translations { name }
+                  }
+                }
+              }
+            }
+          `,
+          variables: {
+            input: {
+              limit: 10,
+              offset: 0,
+              query: q,
+              languages: ["any"],
+              queryFilters: ["city"],
+              type: "tour, tourist_attraction, museum, collection, exhibit, story_navigation",
+            },
+          },
+        }),
+      })
+
+      const json1 = await resp1.json().catch(() => null)
+      let cities = []
+      if (json1?.data?.search) {
+        cities = parseCities(json1.data.search)
+      }
+
+      // Fallback: broader search without type filter if nothing returned
+      if (!cities?.length) {
+        const resp2 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+          method: "POST",
+          headers: {
+            Accept: "application/izi-client-private-api-v1.0+json",
+            "X-IZI-API-KEY": "350e8400-e29b-41d4-a716-446655440003",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              mutation SearchAttraction($input: SearchAttractionMutationInput!) {
+                search(input: $input) {
+                  errors { code message }
+                  success
+                  data {
+                    city {
+                      uuid
+                      name
+                      translations { name }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: {
+              input: {
+                limit: 20,
+                offset: 0,
+                query: q,
+              },
+            },
+          }),
+        })
+        const json2 = await resp2.json().catch(() => null)
+        if (json2?.data?.search) {
+          cities = parseCities(json2.data.search)
+        }
+      }
+
+      setSuggestions(cities || [])
+      setShowSuggestions((cities || []).length > 0)
+    } catch (err) {
+      setSuggestions([])
+      setShowSuggestions(false)
     }
   }
 
@@ -460,17 +591,60 @@ export default function SearchWidget() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 rounded bg-white text-black border border-gray-300"
               placeholder="Type to search..."
+              required
               autoComplete="off"
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-sm mb-1 text-white">City</label>
             <input
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
+              value={cityInput}
+              onChange={(e) => {
+                const val = e.target.value
+                setCityInput(val)
+                // clear region uuid until a suggestion is chosen
+                setRegion("")
+                // debounce fetch
+                if (debounceTimeout) clearTimeout(debounceTimeout)
+                if (val.trim().length >= 1) {
+                  const t = setTimeout(() => fetchCitySuggestions(val), 300)
+                  setDebounceTimeout(t)
+                } else {
+                  setSuggestions([])
+                  setShowSuggestions(false)
+                }
+                setShowSuggestions(true)
+              }}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true)
+              }}
+              onBlur={() => {
+                // delay to allow click
+                setTimeout(() => setShowSuggestions(false), 150)
+              }}
+              autoComplete="off"
               className="w-full px-4 py-2 rounded bg-white text-black border border-gray-300"
               placeholder="e.g. Den Haag"
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-20 mt-1 w-full bg-white text-black rounded border border-gray-300 max-h-56 overflow-y-auto">
+                {suggestions.map((city, idx) => (
+                  <div
+                    key={city?.uuid || idx}
+                    className="px-3 py-2 hover:bg-custom-blue-100 cursor-pointer"
+                    onMouseDown={() => {
+                      const label = getCityDisplayName(city)
+                      setCityInput(label)
+                      setRegion(city?.uuid || "")
+                      setShowSuggestions(false)
+                      setSuggestions([])
+                    }}
+                  >
+                    {getCityDisplayName(city)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="relative">
             <label className="block text-sm mb-1 text-white">Select Languages</label>
@@ -693,7 +867,7 @@ export default function SearchWidget() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm"
+                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
                             onClick={() => handleViewDetails(item, "museum", idx)}
                           >
                             Visit Museum
