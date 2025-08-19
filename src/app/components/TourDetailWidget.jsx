@@ -272,16 +272,16 @@ export default function TourDetailWidget() {
         <div className="flex items-start gap-2">
           {!loading && !error && (
             <div className="w-1/3 max-w-md">
-              <h2 className="text-2xl font-bold mb-4 text-white" style={{marginBottom:'18px'}}>Tour & Museum List</h2>
+              <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
               <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
-              style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
+                style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
                   <div>
                     {tours.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-custom-blue-50 text-white" : "hover:bg-custom-blue-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
@@ -293,30 +293,30 @@ export default function TourDetailWidget() {
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              className="bg-custom-red-50 custom-button text-white px-4 py-1 text-sm truncate"
+                              className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
                               onClick={() => handleViewDetails(item, "tour", idx)}
                             >
                               More Details
                             </button>
-                           </div>
+                          </div>
                         </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                          <div className="border-custom-gray-300 border-purple-500">
+                          <div className="border border-purple-500">
                             {item.content?.[0]?.children?.length > 0 ? (
                               <div className="relative">
-                                <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>
-                                <ol className="margin-0 padding-0">
+                                {/* Removed vertical line */}
+                                <ol className="margin-0 padding-0 list-none">
                                   {item.content[0].children.map((child, cidx) => {
                                     const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                     return (
                                       <li
                                         key={cidx}
-                                        className={`relative pl-8 py-2 border flex items-center bg-custom-blue-50 cursor-pointer ${isSelected ? "test" : ""}`}
+                                        className={`relative pl-8 py-2 border flex items-center bg-custom-blue-50 cursor-pointer ${isSelected ? "bg-custom-red-50 text-white rounded" : ""}`}
                                         onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
-                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
+                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-red-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
                                         >
                                           {cidx + 1}
                                         </span>
@@ -327,7 +327,7 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-white text-xs font-semibold mr-3">
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background:'grey-200'}}>
                                             N/A
                                           </div>
                                         )}
@@ -337,7 +337,7 @@ export default function TourDetailWidget() {
                                             href={child.affiliateLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`ml-2 px-2 py-1 rounded text-xs no-underline ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white bg-custom-blue-50"}`}
+                                            className={`ml-2 px-2 py-1 rounded text-xs no-underline ${isSelected ? "bg-white text-custom-blue-50" : "bg-amber-600 text-white hover:bg-custom-blue-50"}`}
                                             onClick={(e) => e.stopPropagation()}
                                           >
                                             Affiliate
@@ -372,7 +372,7 @@ export default function TourDetailWidget() {
                     {museums.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-custom-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-custom-blue-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-custom-blue-50 text-white" : "hover:bg-custom-blue-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
@@ -394,18 +394,18 @@ export default function TourDetailWidget() {
                           <div className="bg-custom-blue-50 px-2 py-2 border-purple-500">
                             {item.content[0]?.references?.length > 0 ? (
                               <div className="relative">
-                                <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>
-                                <ol className="mb-2">
+                                {/* Removed vertical line */}
+                                <ol className="margin-0 padding-0 list-none">
                                   {item.content[0].references.map((ref, ridx) => {
                                     const isSelected = selectedChild && selectedChild.uuid === ref.uuid
                                     return (
                                       <li
                                         key={ridx}
-                                        className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-[#D60D46] text-white rounded" : ""}`}
+                                        className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-custom-red-50 text-white rounded" : ""}`}
                                         onClick={() => handleSelectChild(ref, item)}
                                       >
                                         <span
-                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-blue-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                         >
                                           {ridx + 1}
                                         </span>
@@ -416,7 +416,7 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-white text-xs font-semibold mr-3">
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background: "#e0e0e0;"}}>
                                             N/A
                                           </div>
                                         )}
@@ -426,7 +426,7 @@ export default function TourDetailWidget() {
                                             href={ref.affiliateLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-custom-red-50 text-white hover:bg-custom-blue-50"}`}
+                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-custom-blue-50" : "bg-custom-red-50 text-white hover:bg-custom-blue-50"}`}
                                             onClick={(e) => e.stopPropagation()}
                                           >
                                             Affiliate
