@@ -255,7 +255,7 @@ export default function TourDetailWidget() {
 
         {/* Limit reached message for details */}
         {limitReached && (selectedChild || selectedItem) && (
-          <div className="mb-4 p-4 rounded-lg bg-red-100 border border-red-300">
+          <div className="mb-4 p-4 bg-red-100 border border-red-300">
             <div className="text-center text-red-800">
               <div className="text-lg font-semibold mb-2">⚠️ Credit Limit Reached</div>
               <p className="text-sm">
@@ -271,9 +271,9 @@ export default function TourDetailWidget() {
         {/* Show tours and museums list, details and map side-by-side */}
         <div className="flex items-start gap-2">
           {!loading && !error && (
-            <div className="w-1/3 max-w-md mr-4">
-              <h2 className="text-2xl font-bold mb-4 text-white" style={{marginBottom:'13px'}}>Tour & Museum List</h2>
-              <div className="bg-white rounded-lg overflow-y-auto border border-gray-300 shadow-sm"
+            <div className="w-1/3 max-w-md">
+              <h2 className="text-2xl font-bold mb-4 text-white" style={{marginBottom:'18px'}}>Tour & Museum List</h2>
+              <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
               style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
@@ -293,7 +293,7 @@ export default function TourDetailWidget() {
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              className="bg-custom-red-50 custom-button text-white px-4 py-1 rounded text-sm truncate"
+                              className="bg-custom-red-50 custom-button text-white px-4 py-1 text-sm truncate"
                               onClick={() => handleViewDetails(item, "tour", idx)}
                             >
                               More Details
@@ -302,7 +302,7 @@ export default function TourDetailWidget() {
                         </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                          <div className="border-custom-gray-300 border-l-4 border-purple-500">
+                          <div className="border-custom-gray-300 border-purple-500">
                             {item.content?.[0]?.children?.length > 0 ? (
                               <div className="relative">
                                 <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>
@@ -316,7 +316,7 @@ export default function TourDetailWidget() {
                                         onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
-                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
                                         >
                                           {cidx + 1}
                                         </span>
@@ -344,7 +344,7 @@ export default function TourDetailWidget() {
                                           </a>
                                         )}
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`} style={{marginRight: '10px'}}
                                         >
                                           ›
                                         </span>
@@ -391,7 +391,7 @@ export default function TourDetailWidget() {
                         </div>
                         {/* References list below the selected museum */}
                         {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
-                          <div className="bg-custom-blue-50 px-2 py-2 border-l-4 border-purple-500">
+                          <div className="bg-custom-blue-50 px-2 py-2 border-purple-500">
                             {item.content[0]?.references?.length > 0 ? (
                               <div className="relative">
                                 <div className="absolute left-13 top-3 bottom-0 w-px bg-[#0E5671]"></div>

@@ -222,6 +222,7 @@ export default function SearchWidget() {
                 errors { code message }
                 success
                 data {
+                  userLimit
                   city {
                     uuid
                     name
@@ -233,7 +234,7 @@ export default function SearchWidget() {
           `,
           variables: {
             input: {
-              limit: 10,
+              limit: 20,
               offset: 0,
               query: q,
               languages: ["any"],
@@ -266,6 +267,7 @@ export default function SearchWidget() {
                   errors { code message }
                   success
                   data {
+                    userLimit
                     city {
                       uuid
                       name
@@ -323,6 +325,7 @@ export default function SearchWidget() {
             mutation SearchAttraction($input: SearchAttractionMutationInput!) {
               search(input: $input) {
                 data {
+                  userLimit
                   status
                   uuid
                   title
@@ -374,7 +377,17 @@ export default function SearchWidget() {
       })
       const { data, errors } = await response.json()
       if (errors) throw new Error(errors[0].message)
-      const filtered = (data?.search?.data || []).filter((item) => item.status === "published")
+      const items = Array.isArray(data?.search?.data) ? data.search.data : []
+      const limitFalse = items.some((i) => i?.userLimit === false)
+      if (limitFalse) {
+        setLimitReached(true)
+        setResults([])
+        setError("Your credit limit has ended or you cannot create more widgets. You've reached your limit.")
+        return
+      } else {
+        setLimitReached(false)
+      }
+      const filtered = items.filter((item) => item.status === "published")
       setResults(filtered)
     } catch (err) {
       setError(err.message || "Failed to fetch suggestions")
@@ -400,6 +413,10 @@ export default function SearchWidget() {
   }
 
   const createWidget = async () => {
+    if (limitReached) {
+      setError("Your credit limit has ended or you cannot create more widgets. You've reached your limit.")
+      return
+    }
     const payload = buildSelectedLanguageMap()
     if (Object.keys(payload).length === 0) return
     if (!userData?.id) {
@@ -695,21 +712,21 @@ export default function SearchWidget() {
 
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
-        {/* Limit reached message for details */}
-        {limitReached && (selectedChild || selectedItem) && (
+        {/* Limit reached message */}
+        {limitReached && (
           <div className="mb-4 p-4 rounded-lg bg-red-100 border border-red-300">
             <div className="text-center text-red-800">
-              <div className="text-lg font-semibold mb-2">⚠️ Credit Limit Reached</div>
+              <div className="text-lg font-semibold mb-2">Credit limit reached</div>
               <p className="text-sm">
-                You have reached your credit limit and cannot view detailed information. Please upgrade your plan to
-                continue accessing tour and museum details.
+                Your credit limit has ended or you cannot create more widgets. You've reached your limit.
               </p>
             </div>
           </div>
         )}
         {/* Show tours and museums list, details and map side-by-side */}
-        <div className="flex items-start gap-2">
-          <div className="w-1/3 max-w-md mr-4">
+        {!limitReached && (
+        <div className="flex items-start gap-4">
+          <div className="w-1/3 max-w-md">
             <h2 className="text-2xl font-bold text-white" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
             <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
             style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}
@@ -763,7 +780,7 @@ export default function SearchWidget() {
                       </div>
                       {/* Children list below the selected tour */}
                       {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                        <div className="bg-custom-blue-50 py-2">
+                        <div className="bg-custom-blue-50">
                           {item.content?.[0]?.children?.length > 0 ? (
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
@@ -777,7 +794,7 @@ export default function SearchWidget() {
                                       onClick={() => handleSelectChild(child, item)}
                                     >
                                       <span
-                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                        className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
                                       >
                                         {cidx + 1}
                                       </span>
@@ -806,6 +823,7 @@ export default function SearchWidget() {
                                       )}
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400 truncate"}`}
+                                        style={{marginRight: '10px'}}
                                       >
                                         ›
                                       </span>
@@ -876,7 +894,7 @@ export default function SearchWidget() {
                       </div>
                       {/* References list below the selected museum */}
                       {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
-                        <div className="bg-gray-50 py-2 border-l-4 border-purple-500">
+                        <div className="bg-gray-50 py-2 border-purple-500">
                           {item.content?.[0]?.references?.length > 0 ? (
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
@@ -968,12 +986,13 @@ export default function SearchWidget() {
             </>
           )}
         </div>
+        )}
 
         <div className="mt-8 mb-4 flex items-center gap-4">
           <button
             className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded"
             onClick={createWidget}
-            disabled={isSavingCollection || Object.values(selectedUuids).every((v) => !v)}
+            disabled={limitReached || isSavingCollection || Object.values(selectedUuids).every((v) => !v)}
           >
             {isSavingCollection ? "Creating..." : "Create Widget"}
           </button>
