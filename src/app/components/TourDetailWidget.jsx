@@ -133,10 +133,12 @@ export default function TourDetailWidget() {
   }
 
   const handleTitleClick = (item, type, idx) => {
-    // Only toggle expand/collapse of children; do not show parent details
+    // Toggle expand/collapse of children/references and show parent details
     setExpandedIdx(
       expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx }
     )
+    setSelectedItem(item)
+    setSelectedChild(null)
     setError("")
   }
 

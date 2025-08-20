@@ -83,7 +83,7 @@ export default function SharedDetailsView({
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 bg-white rounded-lg shadow-lg border border-white">
+    <div className="h-full overflow-y-auto p-4 bg-white rounded-lg shadow-lg border border-white" style={{ height: "402px" }}>
       <div className="flex flex-col items-center w-full divide-y divide-white">
         <h2 className="text-2xl font-bold mb-4 text-center text-[#0E5671]">{itemTitle}</h2>
 
