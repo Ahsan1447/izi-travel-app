@@ -702,7 +702,7 @@ export default function SearchWidget() {
             )}
           </div>
           <div className="flex items-end">
-            <button type="submit" className="w-full bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded">
+            <button type="submit" className="w-full bg-custom-red-50 hover:bg-black text-white px-4 py-2 rounded">
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
@@ -771,7 +771,7 @@ export default function SearchWidget() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
+                            className="bg-custom-red-50 hover:bg-black text-white px-4 py-1 rounded text-sm truncate"
                             onClick={() => handleViewDetails(item, "tour", idx)}
                           >
                             More Details
@@ -990,7 +990,7 @@ export default function SearchWidget() {
 
         <div className="mt-8 mb-4 flex items-center gap-4">
           <button
-            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded"
+            className="bg-custom-red-50 hover:bg-black text-white px-4 py-2 rounded"
             onClick={createWidget}
             disabled={limitReached || isSavingCollection || Object.values(selectedUuids).every((v) => !v)}
           >

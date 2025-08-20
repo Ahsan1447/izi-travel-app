@@ -56,7 +56,7 @@ export default function SignOutButton() {
   return (
     <button
       onClick={handleSignOut}
-      className="inline-flex items-center gap-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-2 rounded-md text-sm font-medium shadow"
+      className="inline-flex items-center gap-2 bg-custom-red-50 hover:bg-black text-white px-4 py-2 rounded-md text-sm font-medium shadow"
       aria-label="Sign out"
     >
       Sign out
