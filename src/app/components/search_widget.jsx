@@ -942,6 +942,7 @@ export default function SearchWidget() {
               )}
             </div>
           </div>
+
           {(selectedChild || selectedItem) && (
             <>
               <div className="w-1/3 mt-10 overflow-y-auto" style={{height:'402px'}}>
@@ -950,15 +951,17 @@ export default function SearchWidget() {
                   selectedItem={selectedItem}
                   limitReached={limitReached}
                   markerNumber={getMarkerNumber()}
+                  onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="w-1/3 mt-10">
+              <div className="w-1/3 mt-10" style={{ height: '402px' }}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
                   limitReached={limitReached}
                   markerNumber={getMarkerNumber()}
                   mapOnly={true}
+                  onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
             </>

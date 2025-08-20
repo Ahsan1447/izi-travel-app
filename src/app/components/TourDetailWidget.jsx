@@ -18,6 +18,7 @@ export default function TourDetailWidget() {
   const [userData, setUserData] = useState(null)
   const [childDetailsCache, setChildDetailsCache] = useState({})
   const [fetchingChildDetails, setFetchingChildDetails] = useState(false)
+  const [selectionVersion, setSelectionVersion] = useState(0)
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
@@ -29,12 +30,31 @@ export default function TourDetailWidget() {
   }, [])
 
   const handleViewDetails = (item, type = null, idx = null) => {    // Only toggle the children/references list; do not open parent details
+    // Toggle the expanded list for this item; do NOT clear selectedItem/selectedChild when collapsing
     if (type && idx !== null) {
-      setExpandedIdx(
-        expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx }
-      )
+      const willCollapse = expandedIdx.type === type && expandedIdx.idx === idx
+      const newExpanded = willCollapse ? { type: null, idx: null } : { type, idx }
+      setExpandedIdx(newExpanded)
+
+      if (!willCollapse) {
+        // Expanding: show parent details and reset child selection
+        setSelectedItem({ ...item })
+        setSelectedChild(null)
+        setSelectionVersion((v) => v + 1)
+      }
+      // If collapsing, hide selected details and map by clearing selections
+      if (willCollapse) {
+        setSelectedItem(null)
+        setSelectedChild(null)
+        // bump selectionVersion so map components react to the change
+        setSelectionVersion((v) => v + 1)
+      }
+    } else {
+      // If no type/idx passed, just select the item
+      setSelectedItem({ ...item })
+      setSelectedChild(null)
+      setSelectionVersion((v) => v + 1)
     }
-    // Do not modify selectedItem/selectedChild here to avoid showing parent details
     setError("")
   }
 
@@ -46,11 +66,18 @@ export default function TourDetailWidget() {
 
     // Check if we already have the details for this child
     if (childDetailsCache[child.uuid]) {
-      setSelectedChild(childDetailsCache[child.uuid])
-      setSelectedItem(item)
+  // Use shallow copies so identity changes and downstream effects run
+  setSelectedChild({ ...childDetailsCache[child.uuid] })
+  setSelectedItem({ ...item })
+  setSelectionVersion((v) => v + 1)
       setError("")
       return
     }
+
+    // Optimistically show the child immediately so map can zoom to its coordinates
+  setSelectedChild({ ...child })
+  setSelectedItem({ ...item })
+  setSelectionVersion((v) => v + 1)
 
     // Fetch details for the child using DetailsMutation
     setFetchingChildDetails(true)
@@ -116,30 +143,39 @@ export default function TourDetailWidget() {
           [child.uuid]: childDetails,
         }))
 
-        // Set the selected child with full details
-        setSelectedChild(childDetails)
-        setSelectedItem(item)
+  // Set the selected child with full details (use shallow copies)
+  setSelectedChild({ ...childDetails })
+  setSelectedItem({ ...item })
+  setSelectionVersion((v) => v + 1)
       } else {
         throw new Error("No details found for this item")
       }
     } catch (err) {
       setError(err.message || "Failed to fetch child details")
-      // Fallback to showing basic child info
-      setSelectedChild(child)
-      setSelectedItem(item)
+  // Fallback to showing basic child info (shallow copies)
+  setSelectedChild({ ...child })
+  setSelectedItem({ ...item })
+  setSelectionVersion((v) => v + 1)
     } finally {
       setFetchingChildDetails(false)
     }
   }
 
   const handleTitleClick = (item, type, idx) => {
-    // Toggle expand/collapse of children/references and show parent details
-    setExpandedIdx(
-      expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx }
-    )
-    setSelectedItem(item)
+  // Toggle expand/collapse of the children/references list only; keep details/map visible when collapsing
+  const willCollapse = expandedIdx.type === type && expandedIdx.idx === idx
+  setExpandedIdx(willCollapse ? { type: null, idx: null } : { type, idx })
+  if (!willCollapse) {
+    setSelectedItem({ ...item })
     setSelectedChild(null)
-    setError("")
+    setSelectionVersion((v) => v + 1)
+  } else {
+    // Collapsing: hide details and map
+    setSelectedItem(null)
+    setSelectedChild(null)
+    setSelectionVersion((v) => v + 1)
+  }
+  setError("")
   }
 
   useEffect(() => {
@@ -451,6 +487,8 @@ export default function TourDetailWidget() {
                   selectedItem={selectedItem}
                   limitReached={limitReached}
                   markerNumber={getMarkerNumber()}
+                  selectionVersion={selectionVersion}
+                  onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
               <div className="w-1/3 mt-16">
@@ -459,7 +497,9 @@ export default function TourDetailWidget() {
                   selectedItem={selectedItem}
                   limitReached={limitReached}
                   markerNumber={getMarkerNumber()}
+                  selectionVersion={selectionVersion}
                   mapOnly={true}
+                  onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
             </>
