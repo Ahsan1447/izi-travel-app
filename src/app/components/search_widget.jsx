@@ -810,17 +810,6 @@ export default function SearchWidget() {
                                         </div>
                                       )}
                                       <span className="font-medium">{child.title || "No title"}</span>
-                                      {isSelected && child.affiliateLink && (
-                                        <a
-                                          href={child.affiliateLink}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white hover:bg-amber-700"}`}
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          Affiliate
-                                        </a>
-                                      )}
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400 truncate"}`}
                                         style={{marginRight: '10px'}}
@@ -924,17 +913,6 @@ export default function SearchWidget() {
                                         </div>
                                       )}
                                       <span className="font-medium">{ref.title || "No title"}</span>
-                                      {isSelected && ref.affiliateLink && (
-                                        <a
-                                          href={ref.affiliateLink}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-[#0E5671]" : "bg-amber-600 text-white hover:bg-amber-700"}`}
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          Affiliate
-                                        </a>
-                                      )}
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                       >

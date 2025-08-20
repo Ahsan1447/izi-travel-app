@@ -332,17 +332,7 @@ export default function TourDetailWidget() {
                                           </div>
                                         )}
                                         <span className="font-medium truncate">{child.title || "No title"}</span>
-                                        {isSelected && child.affiliateLink && (
-                                          <a
-                                            href={child.affiliateLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`ml-2 px-2 py-1 rounded text-xs no-underline ${isSelected ? "bg-white text-custom-blue-50" : "bg-amber-600 text-white hover:bg-custom-blue-50"}`}
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            Affiliate
-                                          </a>
-                                        )}
+
                                         <span
                                           className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`} style={{marginRight: '10px'}}
                                         >
@@ -421,17 +411,6 @@ export default function TourDetailWidget() {
                                           </div>
                                         )}
                                         <span className="font-medium">{ref.title || "No title"}</span>
-                                        {isSelected && ref.affiliateLink && (
-                                          <a
-                                            href={ref.affiliateLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`ml-2 px-2 py-1 rounded text-xs ${isSelected ? "bg-white text-custom-blue-50" : "bg-custom-red-50 text-white hover:bg-custom-blue-50"}`}
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            Affiliate
-                                          </a>
-                                        )}
                                         <span
                                           className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`}
                                         >
