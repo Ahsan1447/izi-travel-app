@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "build:es": "esbuild esbuild/widget-entry.jsx --bundle --outfile=public/widget.js --platform=browser --minify --target=es2020 --define:process.env.NODE_ENV='\"production\"'",
+    "build:widget": "node build-tailwind.js",
+    "build:tailwind": "npx tailwindcss -i ./src/app/globals.css -o ./public/widget.css --minify",
     "start": "next start",
     "lint": "next lint"
   },

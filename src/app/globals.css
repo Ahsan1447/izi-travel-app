@@ -2,27 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 255, 255, 255; /* white text */
-  /* --background-start-rgb: 14, 86, 113; #0E5671 */
-  /* --background-end-rgb: 14, 86, 113; #0E5671 */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255; /* white text */
-    --background-start-rgb: 14, 86, 113;
-    --background-end-rgb: 14, 86, 113;
+@layer components {
+  .wrapper {
+    @apply flex flex-col items-center justify-start p-8 min-h-screen;
   }
-}
-
-body {
-  /* color: rgb(var(--foreground-rgb)); */
-  /* background: rgb(var(--background-start-rgb)); */
-}
-
-.wrapper {
-  @apply flex flex-col items-center justify-start p-8 min-h-screen;
-  /* background-color: #0E5671; */
-  /* color: white; */
 }

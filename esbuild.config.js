@@ -11,7 +11,9 @@ esbuild.build({
   loader: {
     '.js': 'jsx',
     '.jsx': 'jsx',
+    '.css': 'css',
   },
   jsx: 'automatic',
   external: ['react', 'react-dom'],
+  plugins: [],
 }).catch(() => process.exit(1));

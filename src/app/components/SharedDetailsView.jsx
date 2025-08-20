@@ -60,7 +60,7 @@ export default function SharedDetailsView({
         title="location-map"
         src={getMapUrl()}
         className="w-full"
-        style={{ height: "400px", border: 0 }}
+        className="w-full h-[400px] border-0"
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
       />
@@ -68,7 +68,7 @@ export default function SharedDetailsView({
       {typeof markerNumber === "number" && (
         <div
           className="w-10 h-10 rounded-full bg-[#0E5671] text-white inline-flex items-center justify-center shadow-lg border border-white text-sm font-bold"
-          style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -100%)" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
         >
           {markerNumber}
         </div>

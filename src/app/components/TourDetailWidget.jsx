@@ -273,8 +273,9 @@ export default function TourDetailWidget() {
           {!loading && !error && (
             <div className="w-1/3 max-w-md">
               <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
-              <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
-                style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
+              <div className={`bg-white overflow-y-auto border border-gray-300 shadow-sm ${
+                (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? 'h-[402px]' : 'h-auto'
+              }`}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
                   <div>
@@ -316,7 +317,7 @@ export default function TourDetailWidget() {
                                         onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
-                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-red-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
+                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-red-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold left-4 top-[18px]`}
                                         >
                                           {cidx + 1}
                                         </span>
@@ -327,7 +328,7 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background:'grey-200'}}>
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3 bg-gray-200">
                                             N/A
                                           </div>
                                         )}
@@ -344,7 +345,7 @@ export default function TourDetailWidget() {
                                           </a>
                                         )}
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`} style={{marginRight: '10px'}}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"} mr-[10px]`}
                                         >
                                           ›
                                         </span>
@@ -416,7 +417,7 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background: "#e0e0e0;"}}>
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3 bg-gray-300">
                                             N/A
                                           </div>
                                         )}
@@ -464,7 +465,7 @@ export default function TourDetailWidget() {
           )}
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-16 overflow-y-auto" style={{height:'402px'}}>
+              <div className="w-1/3 mt-16 overflow-y-auto h-[402px]">
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}

@@ -727,9 +727,10 @@ export default function SearchWidget() {
         {!limitReached && (
         <div className="flex items-start gap-4">
           <div className="w-1/3 max-w-md">
-            <h2 className="text-2xl font-bold text-white" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
-            <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
-            style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}
+            <h2 className="text-2xl font-bold text-white mb-[10px]">Tour & Museum List</h2>
+            <div className={`bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm ${
+              (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? 'h-[402px]' : 'h-auto'
+            }`}
             >
               {/* Tours Section */}
               {tours.length > 0 && (
@@ -794,7 +795,7 @@ export default function SearchWidget() {
                                       onClick={() => handleSelectChild(child, item)}
                                     >
                                       <span
-                                        className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
+                                        className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold left-4 top-[18px]`}
                                       >
                                         {cidx + 1}
                                       </span>
@@ -822,8 +823,7 @@ export default function SearchWidget() {
                                         </a>
                                       )}
                                       <span
-                                        className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400 truncate"}`}
-                                        style={{marginRight: '10px'}}
+                                        className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400 truncate"} mr-[10px]`}
                                       >
                                         ›
                                       </span>
@@ -966,7 +966,7 @@ export default function SearchWidget() {
           </div>
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-10 overflow-y-auto" style={{height:'402px'}}>
+              <div className="w-1/3 mt-10 overflow-y-auto h-[402px]">
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
