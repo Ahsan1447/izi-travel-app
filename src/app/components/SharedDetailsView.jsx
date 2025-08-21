@@ -113,6 +113,7 @@ export default function SharedDetailsView({
   // (mapRef.current) before attempting to load/initialize Leaflet. This ensures single child/reference
   // selections (where the container may appear only after state change) still initialize correctly.
   useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
     let mounted = true
 
     function initMap() {
@@ -210,6 +211,7 @@ export default function SharedDetailsView({
   // Some browsers / Leaflet instances may not update layers properly when props change,
   // so recreate the map if it's missing, otherwise refresh markers.
   useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
     if (!hasCoords) return
     const map = mapInstanceRef.current
     // Force a recreate so the new selection is always fully rendered.
@@ -418,7 +420,7 @@ export default function SharedDetailsView({
         </div>
 
   {/* Show the map when we have coordinates (either selected child, selected item coords, or content points). */}
-  {hasCoords && <MapView />}
+  {showMapInPanel && hasCoords && <MapView />}
       </div>
     </div>
   )

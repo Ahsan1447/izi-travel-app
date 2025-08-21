@@ -287,7 +287,7 @@ export default function TourDetailWidget() {
   }
 
   return (
-    <main className="bg-custom-blue-100 text-white">
+    <main className="bg-gray-100 text-black">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative overflow-hidden">
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
@@ -310,7 +310,7 @@ export default function TourDetailWidget() {
         <div className="flex items-start gap-2">
           {!loading && !error && (
             <div className="w-1/3 max-w-md">
-              <h2 className="text-2xl font-bold mb-4 text-white">Tour & Museum List</h2>
+              <h2 className="text-2xl font-bold mb-4 text-black">Tour & Museum List</h2>
               <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
                 style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
                 {/* Tours Section */}
@@ -319,25 +319,17 @@ export default function TourDetailWidget() {
                     {tours.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-custom-blue-50 text-white" : "hover:bg-custom-blue-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className="font-semibold cursor-pointer text-gray-800"
+                              className={`font-semibold cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
                               onClick={() => handleTitleClick(item, "tour", idx)}
                             >
                               {item.title}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              className="bg-custom-red-50 hover:bg-black text-white px-4 py-1 text-sm truncate"
-                              onClick={() => handleViewDetails(item, "tour", idx)}
-                            >
-                              More Details
-                            </button>
-                          </div>
-                        </div>
+                                                  </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
                           <div className="border border-purple-500">
@@ -350,11 +342,11 @@ export default function TourDetailWidget() {
                                     return (
                                       <li
                                         key={cidx}
-                                        className={`relative pl-8 py-2 border flex items-center bg-custom-blue-50 cursor-pointer ${isSelected ? "bg-custom-red-50 text-white rounded" : ""}`}
+                                        className={`relative pl-8 py-2 border border-gray-200 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
                                         onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
-                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-red-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
+                                          className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
                                         >
                                           {cidx + 1}
                                         </span>
@@ -365,14 +357,14 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background:'grey-200'}}>
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-gray-600 text-xs font-semibold mr-3" style={{background:'grey-200'}}>
                                             N/A
                                           </div>
                                         )}
                                         <span className="font-medium truncate">{child.title || "No title"}</span>
 
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`} style={{marginRight: '10px'}}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-500"}`} style={{marginRight: '10px'}}
                                         >
                                           ›
                                         </span>
@@ -385,7 +377,7 @@ export default function TourDetailWidget() {
                                 </ol>
                               </div>
                             ) : (
-                              <div className="text-white">No children available.</div>
+                              <div className="text-gray-600">No children available.</div>
                             )}
                           </div>
                         )}
@@ -400,11 +392,11 @@ export default function TourDetailWidget() {
                     {museums.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-custom-blue-50 text-white" : "hover:bg-custom-blue-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className="font-semibold cursor-pointer text-gray-800"
+                              className={`font-semibold cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
                               onClick={() => handleTitleClick(item, "museum", idx)}
                             >
                               {item.title}
@@ -429,11 +421,11 @@ export default function TourDetailWidget() {
                                     return (
                                       <li
                                         key={ridx}
-                                        className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-custom-red-50 text-white rounded" : ""}`}
+                                        className={`relative pl-8 py-2 flex items-center border border-gray-200 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
                                         onClick={() => handleSelectChild(ref, item)}
                                       >
                                         <span
-                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-custom-blue-50 border-custom-blue-50 text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                                          className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                         >
                                           {ridx + 1}
                                         </span>
@@ -444,13 +436,13 @@ export default function TourDetailWidget() {
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
-                                          <div className="w-12 h-12 flex items-center justify-center rounded text-white text-xs font-semibold mr-3" style={{background: "#e0e0e0;"}}>
+                                          <div className="w-12 h-12 flex items-center justify-center rounded text-gray-600 text-xs font-semibold mr-3" style={{background: "#e0e0e0;"}}>
                                             N/A
                                           </div>
                                         )}
                                         <span className="font-medium">{ref.title || "No title"}</span>
                                         <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-white"}`}
+                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                         >
                                           ›
                                         </span>
@@ -463,7 +455,7 @@ export default function TourDetailWidget() {
                                 </ol>
                               </div>
                             ) : (
-                              <div className="text-white">No references available.</div>
+                              <div className="text-gray-600">No references available.</div>
                             )}
                           </div>
                         )}
@@ -474,14 +466,14 @@ export default function TourDetailWidget() {
 
                 {/* No results message */}
                 {tours.length === 0 && museums.length === 0 && results.length > 0 && (
-                  <div className="p-4 text-center text-white">No published tours or museums found.</div>
+                  <div className="p-4 text-center text-gray-500">No published tours or museums found.</div>
                 )}
               </div>
             </div>
           )}
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-16 overflow-y-auto" style={{height:'402px'}}>
+              <div className="w-1/3 mt-16 overflow-y-auto bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -491,7 +483,7 @@ export default function TourDetailWidget() {
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="w-1/3 mt-16">
+              <div className="w-1/3 mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3">
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}

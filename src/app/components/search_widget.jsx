@@ -592,7 +592,7 @@ export default function SearchWidget() {
   }
 
   return (
-    <main className="wrapper min-h-screen bg-custom-blue-100 text-gray-800 bg-custom-blue-50">
+    <main className="wrapper min-h-screen bg-gray-100 text-black">
       <div className="w-full max-w-full mx-auto px-8 py-6 relative">
         <form
           onSubmit={(e) => {
@@ -602,7 +602,7 @@ export default function SearchWidget() {
           className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
           <div>
-            <label className="block text-sm mb-1 text-white">Tour or Museum name</label>
+            <label className="block text-sm mb-1 text-black">Tour or Museum name</label>
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -613,7 +613,7 @@ export default function SearchWidget() {
             />
           </div>
           <div className="relative">
-            <label className="block text-sm mb-1 text-white">City</label>
+            <label className="block text-sm mb-1 text-black">City</label>
             <input
               value={cityInput}
               onChange={(e) => {
@@ -664,7 +664,7 @@ export default function SearchWidget() {
             )}
           </div>
           <div className="relative">
-            <label className="block text-sm mb-1 text-white">Select Languages</label>
+            <label className="block text-sm mb-1 text-black">Select Languages</label>
             <button
               type="button"
               onClick={() => setShowLangDropdown(!showLangDropdown)}
@@ -727,7 +727,7 @@ export default function SearchWidget() {
         {!limitReached && (
         <div className="flex items-start gap-4">
           <div className="w-1/3 max-w-md">
-            <h2 className="text-2xl font-bold text-white" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
+            <h2 className="text-2xl font-bold text-black" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
             <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
             style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}
             >
@@ -769,15 +769,7 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="bg-custom-red-50 hover:bg-black text-white px-4 py-1 rounded text-sm truncate"
-                            onClick={() => handleViewDetails(item, "tour", idx)}
-                          >
-                            More Details
-                          </button>
-                        </div>
-                      </div>
+                                              </div>
                       {/* Children list below the selected tour */}
                       {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
                         <div className="bg-custom-blue-50">
@@ -790,11 +782,11 @@ export default function SearchWidget() {
                                   return (
                                     <li
                                       key={cidx}
-                                      className={`relative pl-8 py-2 flex items-center border border-white cursor-pointer ${isSelected ? "bg-[#D60D46] text-white rounded" : ""}`}
+                                      className={`relative pl-8 py-2 flex items-center border border-gray-200 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
                                       onClick={() => handleSelectChild(child, item)}
                                     >
                                       <span
-                                        className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#D60D46] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
+                                        className={`absolute -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`} style={{left:'16px', top: '18px'}}
                                       >
                                         {cidx + 1}
                                       </span>
@@ -893,11 +885,11 @@ export default function SearchWidget() {
                                   return (
                                     <li
                                       key={ridx}
-                                      className={`relative pl-8 py-2 flex items-center bg-custom-red-50 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                                      className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
                                       onClick={() => handleSelectChild(ref, item)}
                                     >
                                       <span
-                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-custom-gray-300 text-white"} inline-flex items-center justify-center text-xs font-bold`}
+                                        className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                       >
                                         {ridx + 1}
                                       </span>
@@ -945,7 +937,7 @@ export default function SearchWidget() {
 
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-10 overflow-y-auto" style={{height:'402px'}}>
+              <div className="w-1/3 mt-10 overflow-y-auto bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -954,7 +946,7 @@ export default function SearchWidget() {
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="w-1/3 mt-10" style={{ height: '402px' }}>
+              <div className="w-1/3 mt-10 bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{ height: '402px' }}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
