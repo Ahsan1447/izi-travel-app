@@ -712,8 +712,8 @@ export default function SearchWidget() {
         )}
         {/* Show tours and museums list, details and map side-by-side */}
         {!limitReached && (
-        <div className="flex items-start gap-4">
-          <div className="w-1/3 max-w-md">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          <div>
             <h2 className="text-2xl font-bold text-black" style={{marginBottom:'10px'}}>Tour & Museum List</h2>
             <div className="bg-white rounded-lg overflow-y-auto max-h-402 border border-gray-300 shadow-sm"
             style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}
@@ -924,7 +924,7 @@ export default function SearchWidget() {
 
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-10 overflow-y-auto bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
+              <div className="mt-10 overflow-y-auto bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -933,7 +933,7 @@ export default function SearchWidget() {
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="w-1/3 mt-10 bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{ height: '402px' }}>
+              <div className="mt-10 bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{ height: '402px' }}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}

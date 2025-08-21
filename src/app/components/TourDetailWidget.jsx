@@ -292,9 +292,9 @@ export default function TourDetailWidget() {
         {loading && <div className="text-gray-600 p-4 text-center text-lg">Loading...</div>}
 
         {/* Show tours and museums list, details and map side-by-side */}
-        <div className="flex items-start gap-2">
+        <div className="responsive-grid">
           {!loading && !error && (
-            <div className="w-1/3 max-w-md">
+            <div>
               <h2 className="text-2xl font-bold mb-4 text-black">Tour & Museum List</h2>
               <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
                 style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
@@ -458,7 +458,7 @@ export default function TourDetailWidget() {
           )}
           {(selectedChild || selectedItem) && (
             <>
-              <div className="w-1/3 mt-16 overflow-y-auto bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
+              <div className="mt-16 overflow-y-auto bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
@@ -468,7 +468,7 @@ export default function TourDetailWidget() {
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="w-1/3 mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3">
+              <div className="mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3">
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
