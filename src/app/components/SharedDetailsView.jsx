@@ -254,17 +254,28 @@ export default function SharedDetailsView({
       const lat = Number(selectedChild.location.latitude)
       const lng = Number(selectedChild.location.longitude)
 
-      const singleMarker = L.circleMarker([lat, lng], {
-  radius: 6,
-  color: "#D60D46",
-  fillColor: "#D60D46",
-  fillOpacity: 1,
-  weight: 2
-      })
+  // Use a numbered SVG pin for the single selected child (larger, highlighted)
+  const createPinHtml = (index, size = 44, pinColor = '#D60D46', numberColor = '#0E5671') => {
+        const s = size
+        return `
+          <svg width="${s}" height="${s}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.35"/>
+              </filter>
+            </defs>
+            <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow)"/>
+            <circle cx="18" cy="13" r="7" fill="#fff"/>
+    <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
+          </svg>
+        `
+      }
 
-      singleMarker.addTo(layer)
-
-      singleMarker.bindPopup(`<b>${selectedChild.title || "Untitled"}</b>`)
+      const iconHtml = createPinHtml(1, 44, '#D60D46')
+      const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 44] })
+      const m = L.marker([lat, lng], { icon })
+      m.addTo(layer)
+      m.bindPopup(`<b>${selectedChild.title || 'Untitled'}</b>`)
 
       let attempts = 0
       const centerWhenReady = () => {
@@ -289,23 +300,44 @@ export default function SharedDetailsView({
 
     if (!points.length && latitude && longitude) {
       // Fallback: show marker for selectedItem if no children/references
-      const marker = L.marker([latitude, longitude])
+      const createPinHtml = (index, size = 36, pinColor = '#0E5671') => `
+        <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}"/>
+          <circle cx="18" cy="13" r="7" fill="#fff"/>
+        </svg>`
+
+      const icon = L.divIcon({ html: createPinHtml(0, 36, '#0E5671'), className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
+      const marker = L.marker([latitude, longitude], { icon })
       marker.addTo(layer)
-      marker.bindPopup(`<b>${itemTitle || "Untitled"}</b>`)
+      marker.bindPopup(`<b>${itemTitle || 'Untitled'}</b>`)
       map.setView([latitude, longitude], 15)
       return
     }
 
     if (!points.length) return
 
+  // Create numbered teardrop pin icons for each point
+  const createPinHtml = (index, size = 36, pinColor = '#D60D46', numberColor = '#0E5671') => `
+      <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pinShadow${index}" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/>
+          </filter>
+        </defs>
+        <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow${index})"/>
+        <circle cx="18" cy="13" r="7" fill="#fff"/>
+    <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
+      </svg>`
+
     const markers = points.map((p) => {
-      const html = `<div style="background:#D60D46;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.3);">${p.index}</div>`
-      const icon = L.divIcon({ html, className: "", iconSize: [20, 20] })
+      // pin red, number uses route blue
+      const html = createPinHtml(p.index, 36, '#D60D46', '#0E5671')
+      const icon = L.divIcon({ html, className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
       const m = L.marker([p.lat, p.lng], { icon })
 
-      m.bindPopup(`<b>${p.title || "Untitled"}</b>`)
+      m.bindPopup(`<b>${p.title || 'Untitled'}</b>`)
 
-      m.on("click", () => {
+      m.on('click', () => {
         map.setView([p.lat, p.lng], 17)
         onSelectMarker(p.raw, selectedItem)
       })
@@ -314,17 +346,26 @@ export default function SharedDetailsView({
       return m
     })
 
-    if (selectedItem?.type === "tour") {
+    // If this selection is a tour, draw a styled route: white outline under a teal main line
+    if (selectedItem?.type === 'tour') {
       const latlngs = points.map((p) => [p.lat, p.lng])
-      const poly = L.polyline(latlngs, { color: "red", weight: 3, opacity: 0.85 })
-      poly.addTo(layer)
+      // Outline for contrast on map tiles
+      const outline = L.polyline(latlngs, { color: '#ffffff', weight: 8, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
+      outline.addTo(layer)
+      // Main route line
+      const main = L.polyline(latlngs, { color: '#0E5671', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
+      main.addTo(layer)
+      // Ensure markers render above the route so numbers remain visible
+      try {
+        markers.forEach((m) => { try { m.bringToFront && m.bringToFront() } catch (_) {} })
+      } catch (_) {}
     }
 
     try {
       const group = L.featureGroup(markers)
       try {
         map.invalidateSize()
-        map.fitBounds(group.getBounds().pad(0.1), { maxZoom: 17 })
+        map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 17 })
       } catch (_) {
         map.setView([points[0].lat, points[0].lng], 13)
       }
