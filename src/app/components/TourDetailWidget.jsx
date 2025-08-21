@@ -84,7 +84,7 @@ export default function TourDetailWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -183,7 +183,7 @@ export default function TourDetailWidget() {
     setLoading(true)
     setError("")
 
-    fetch("http://localhost:3000/graphql", {
+    fetch("http://client-private-api-stage.izi.travel/graphql", {
       method: "POST",
       headers: {
         Accept: "application/izi-client-private-api-v1.0+json",

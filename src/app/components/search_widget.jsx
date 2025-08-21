@@ -89,7 +89,7 @@ export default function SearchWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -208,7 +208,7 @@ export default function SearchWidget() {
     }
 
     try {
-      const resp1 = await fetch("http://localhost:3000/graphql", {
+      const resp1 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -253,7 +253,7 @@ export default function SearchWidget() {
 
       // Fallback: broader search without type filter if nothing returned
       if (!cities?.length) {
-        const resp2 = await fetch("http://localhost:3000/graphql", {
+        const resp2 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
           method: "POST",
           headers: {
             Accept: "application/izi-client-private-api-v1.0+json",
@@ -313,7 +313,7 @@ export default function SearchWidget() {
         queryFilters: ["title", "description"],
         languages,
       }
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -413,7 +413,7 @@ export default function SearchWidget() {
     }
     setIsSavingCollection(true)
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -971,13 +971,13 @@ export default function SearchWidget() {
 <script>
   window.API_KEY = "${storedApiKey}";
 <\/script>
-<link rel="stylesheet" href="http://localhost:3000/widget.css">
-<script src="http://localhost:3000/widget.js"><\/script>`}
+<link rel="stylesheet" href="http://client-private-api-stage.izi.travel/widget.css">
+<script src="http://client-private-api-stage.izi.travel/widget.js"><\/script>`}
               </pre>
               <button
                 className="absolute top-2 right-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
                 onClick={() => {
-                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://localhost:3000/widget.css\">\n<script src=\"http://localhost:3000/widget.js\"><\/script>`
+                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://client-private-api-stage.izi.travel/widget.css\">\n<script src=\"http://client-private-api-stage.izi.travel/widget.js\"><\/script>`
                   navigator.clipboard.writeText(code.replace(/\\n/g, "\n"))
                 }}
               >
