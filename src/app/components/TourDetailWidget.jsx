@@ -209,19 +209,6 @@ export default function TourDetailWidget() {
                   }
                 content {
                   audio { url }
-                  references {
-                    uuid
-                    language
-                    affiliateLink
-                    title
-                    description
-                    images { url }
-                    content { audio { url } }
-                    location{
-                      latitude
-                      longitude
-                    }
-                  }
                   children {
                     uuid
                     language
@@ -235,6 +222,7 @@ export default function TourDetailWidget() {
                       latitude
                       longitude
                     }
+                    status
                   }
                 }
               }
@@ -270,12 +258,9 @@ export default function TourDetailWidget() {
 
   const getMarkerNumber = () => {
     if (selectedChild && selectedItem) {
-      const children = selectedItem?.content?.[0]?.children || []
-      const references = selectedItem?.content?.[0]?.references || []
+      const children = (selectedItem?.content?.[0]?.children || []).filter((c) => c?.status === "published")
       const cIdx = children.findIndex((c) => c?.uuid === selectedChild?.uuid)
       if (cIdx !== -1) return cIdx + 1
-      const rIdx = references.findIndex((r) => r?.uuid === selectedChild?.uuid)
-      if (rIdx !== -1) return rIdx + 1
       return undefined
     }
     if (selectedItem) {
@@ -332,12 +317,12 @@ export default function TourDetailWidget() {
                                                   </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
-                          <div className="border border-purple-500">
-                            {item.content?.[0]?.children?.length > 0 ? (
+                          <div>
+                            {item.content?.[0]?.children?.filter((c) => c?.status === "published")?.length > 0 ? (
                               <div className="relative">
                                 {/* Removed vertical line */}
                                 <ol className="margin-0 padding-0 list-none">
-                                  {item.content[0].children.map((child, cidx) => {
+                                  {item.content[0].children.filter((child) => child?.status === "published").map((child, cidx) => {
                                     const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                     return (
                                       <li
@@ -409,30 +394,30 @@ export default function TourDetailWidget() {
                             Visit Museum
                           </button>
                         </div>
-                        {/* References list below the selected museum */}
+                        {/* Children list below the selected museum */}
                         {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
                           <div className="bg-custom-blue-50 px-2 py-2 border-purple-500">
-                            {item.content[0]?.references?.length > 0 ? (
+                            {item.content?.[0]?.children?.filter((c) => c?.status === "published")?.length > 0 ? (
                               <div className="relative">
                                 {/* Removed vertical line */}
                                 <ol className="margin-0 padding-0 list-none">
-                                  {item.content[0].references.map((ref, ridx) => {
-                                    const isSelected = selectedChild && selectedChild.uuid === ref.uuid
+                                  {item.content[0].children.filter((child) => child?.status === "published").map((child, cidx) => {
+                                    const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                     return (
                                       <li
-                                        key={ridx}
+                                        key={cidx}
                                         className={`relative pl-8 py-2 flex items-center border border-gray-200 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
-                                        onClick={() => handleSelectChild(ref, item)}
+                                        onClick={() => handleSelectChild(child, item)}
                                       >
                                         <span
                                           className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                         >
-                                          {ridx + 1}
+                                          {cidx + 1}
                                         </span>
-                                        {ref.images?.[0]?.url ? (
+                                        {child.images?.[0]?.url ? (
                                           <img
-                                            src={ref.images[0].url || "/placeholder.svg"}
-                                            alt={ref.title}
+                                            src={child.images[0].url || "/placeholder.svg"}
+                                            alt={child.title}
                                             className="w-12 h-12 object-cover rounded mr-3"
                                           />
                                         ) : (
@@ -440,7 +425,7 @@ export default function TourDetailWidget() {
                                             N/A
                                           </div>
                                         )}
-                                        <span className="font-medium">{ref.title || "No title"}</span>
+                                        <span className="font-medium">{child.title || "No title"}</span>
                                         <span
                                           className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                         >
@@ -455,7 +440,7 @@ export default function TourDetailWidget() {
                                 </ol>
                               </div>
                             ) : (
-                              <div className="text-gray-600">No references available.</div>
+                              <div className="text-gray-600">No children available.</div>
                             )}
                           </div>
                         )}

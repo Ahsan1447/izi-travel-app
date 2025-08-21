@@ -38,9 +38,10 @@ export default function SharedDetailsView({
   const itemAudio = currentItem.content?.[0]?.audio?.[0]?.url
   const itemDescription = currentItem.description || ""
 
-  const contentList = selectedItem?.content?.[0]
-    ? ([...(selectedItem.content[0].children || []), ...(selectedItem.content[0].references || [])])
-    : []
+  const rawChildren = selectedItem?.content?.[0]?.children || []
+  const contentList = rawChildren.filter((it) =>
+    typeof it?.status === "string" ? it.status === "published" : true
+  )
 
   const hasContentCoords = contentList.some((it) =>
     Number.isFinite(Number(it?.location?.latitude)) &&
@@ -56,7 +57,7 @@ export default function SharedDetailsView({
   const getPoints = () => {
     const content = selectedItem?.content?.[0] || {}
     const list = (content.children && content.children.length ? content.children : [])
-      .concat(content.references || [])
+      .filter((it) => (typeof it?.status === "string" ? it.status === "published" : true))
     return list
       .map((it, i) => ({
         lat: it?.location?.latitude != null ? Number(it.location.latitude) : null,
@@ -273,7 +274,12 @@ export default function SharedDetailsView({
         `
       }
 
-      const iconHtml = createPinHtml(1, 44, '#D60D46')
+      const indexNumber = Number.isFinite(Number(markerNumber)) ? Number(markerNumber) : (() => {
+        const list = getPoints()
+        const found = list.find((p) => p.uuid === selectedChild.uuid)
+        return found ? found.index : 1
+      })()
+      const iconHtml = createPinHtml(indexNumber, 44, '#D60D46')
       const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 44] })
       const m = L.marker([lat, lng], { icon })
       m.addTo(layer)

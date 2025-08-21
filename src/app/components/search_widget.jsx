@@ -89,7 +89,7 @@ export default function SearchWidget() {
     setError("")
 
     try {
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -208,7 +208,7 @@ export default function SearchWidget() {
     }
 
     try {
-      const resp1 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const resp1 = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -253,7 +253,7 @@ export default function SearchWidget() {
 
       // Fallback: broader search without type filter if nothing returned
       if (!cities?.length) {
-        const resp2 = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+        const resp2 = await fetch("http://localhost:3000/graphql", {
           method: "POST",
           headers: {
             Accept: "application/izi-client-private-api-v1.0+json",
@@ -313,7 +313,7 @@ export default function SearchWidget() {
         queryFilters: ["title", "description"],
         languages,
       }
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -340,19 +340,6 @@ export default function SearchWidget() {
                   }
                   content {
                     audio { url }
-                    references {
-                      uuid
-                      language
-                      affiliateLink
-                      title
-                      description
-                      images { url }
-                      content { audio { url } }
-                      location{
-                        latitude
-                        longitude
-                      }
-                    }
                     children {
                       uuid
                       language
@@ -360,6 +347,7 @@ export default function SearchWidget() {
                       title
                       description
                       type
+                      status
                       images { url }
                       content { audio { url } }
                       location{
@@ -425,7 +413,7 @@ export default function SearchWidget() {
     }
     setIsSavingCollection(true)
     try {
-      const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
+      const response = await fetch("http://localhost:3000/graphql", {
         method: "POST",
         headers: {
           Accept: "application/izi-client-private-api-v1.0+json",
@@ -525,44 +513,46 @@ export default function SearchWidget() {
           Visit Museum
         </button>
       </div>
-      {isExpanded && item.references?.length > 0 && (
+      {isExpanded && (item.content?.[0]?.children?.filter((c) => c?.status === "published")?.length > 0) && (
         <div className="ml-4 mt-2">
-          <div className="font-semibold text-sm mb-1">References:</div>
+          <div className="font-semibold text-sm mb-1">Stories:</div>
           <ul className="list-disc pl-4">
-            {item.references.map((ref, ridx) => {
-              const isSelected = selectedChild && selectedChild.uuid === ref.uuid
-              return (
-                <li
-                  key={ridx}
-                  className={`relative pl-8 py-2 flex items-center bg-customr-red-50 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
-                  onClick={() => handleSelectChild(ref, item)}
-                >
-                  <span
-                    className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white [#0E5671] text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+            {item.content[0].children
+              .filter((child) => child?.status === "published")
+              .map((child, cidx) => {
+                const isSelected = selectedChild && selectedChild.uuid === child.uuid
+                return (
+                  <li
+                    key={cidx}
+                    className={`relative pl-8 py-2 flex items-center bg-customr-red-50 cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : ""}`}
+                    onClick={() => handleSelectChild(child, item)}
                   >
-                    {ridx + 1}
-                  </span>
-                  {ref.images?.[0]?.url ? (
-                    <img
-                      src={ref.images[0].url || "/placeholder.svg"}
-                      alt={ref.title}
-                      className="w-12 h-12 object-cover rounded mr-3"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">
-                      N/A
-                    </div>
-                  )}
-                  <span className="font-medium">{ref.title || "No title"}</span>
-                  <span
-                    className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
-                  >
-                    ›
-                  </span>
-                  {fetchingChildDetails && isSelected && <span className="ml-2 text-xs text-white">Loading...</span>}
-                </li>
-              )
-            })}
+                    <span
+                      className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white [#0E5671] text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
+                    >
+                      {cidx + 1}
+                    </span>
+                    {child.images?.[0]?.url ? (
+                      <img
+                        src={child.images[0].url || "/placeholder.svg"}
+                        alt={child.title}
+                        className="w-12 h-12 object-cover rounded mr-3"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded text-gray-500 text-xs font-semibold mr-3">
+                        N/A
+                      </div>
+                    )}
+                    <span className="font-medium">{child.title || "No title"}</span>
+                    <span
+                      className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
+                    >
+                      ›
+                    </span>
+                    {fetchingChildDetails && isSelected && <span className="ml-2 text-xs text-white">Loading...</span>}
+                  </li>
+                )
+              })}
           </ul>
         </div>
       )}
@@ -575,12 +565,9 @@ export default function SearchWidget() {
 
   const getMarkerNumber = () => {
     if (selectedChild && selectedItem) {
-      const children = selectedItem?.content?.[0]?.children || []
-      const references = selectedItem?.content?.[0]?.references || []
+      const children = (selectedItem?.content?.[0]?.children || []).filter((c) => c?.status === "published")
       const cIdx = children.findIndex((c) => c?.uuid === selectedChild?.uuid)
       if (cIdx !== -1) return cIdx + 1
-      const rIdx = references.findIndex((r) => r?.uuid === selectedChild?.uuid)
-      if (rIdx !== -1) return rIdx + 1
       return undefined
     }
     if (selectedItem) {
@@ -777,7 +764,7 @@ export default function SearchWidget() {
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
                               <ol className="mb-2">
-                                {item.content[0].children.map((child, cidx) => {
+                                {item.content[0].children.filter((child) => child?.status === "published").map((child, cidx) => {
                                   const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                   return (
                                     <li
@@ -873,30 +860,30 @@ export default function SearchWidget() {
                           </button>
                         </div>
                       </div>
-                      {/* References list below the selected museum */}
+                      {/* Children list below the selected museum */}
                       {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
                         <div className="bg-gray-50 py-2 border-purple-500">
-                          {item.content?.[0]?.references?.length > 0 ? (
+                          {item.content?.[0]?.children?.filter((c) => c?.status === "published")?.length > 0 ? (
                             <div className="relative">
                               <div className="absolute left-3 top-0 bottom-0 w-px bg-[#0E5671]"></div>
                               <ol className="mb-2">
-                                {item.content[0].references.map((ref, ridx) => {
-                                  const isSelected = selectedChild && selectedChild.uuid === ref.uuid
+                                {item.content[0].children.filter((child) => child?.status === "published").map((child, cidx) => {
+                                  const isSelected = selectedChild && selectedChild.uuid === child.uuid
                                   return (
                                     <li
-                                      key={ridx}
+                                      key={cidx}
                                       className={`relative pl-8 py-2 flex items-center cursor-pointer ${isSelected ? "bg-[#0E5671] text-white rounded" : "bg-white text-black"}`}
-                                      onClick={() => handleSelectChild(ref, item)}
+                                      onClick={() => handleSelectChild(child, item)}
                                     >
                                       <span
                                         className={`absolute left-3 -translate-x-1/2 top-2 w-6 h-6 rounded-full border ${isSelected ? "bg-[#0E5671] border-[#0E5671] text-white" : "bg-white border-gray-300 text-gray-700"} inline-flex items-center justify-center text-xs font-bold`}
                                       >
-                                        {ridx + 1}
+                                        {cidx + 1}
                                       </span>
-                                      {ref.images?.[0]?.url ? (
+                                      {child.images?.[0]?.url ? (
                                         <img
-                                          src={ref.images[0].url || "/placeholder.svg"}
-                                          alt={ref.title}
+                                          src={child.images[0].url || "/placeholder.svg"}
+                                          alt={child.title}
                                           className="w-12 h-12 object-cover rounded mr-3"
                                         />
                                       ) : (
@@ -904,7 +891,7 @@ export default function SearchWidget() {
                                           N/A
                                         </div>
                                       )}
-                                      <span className="font-medium">{ref.title || "No title"}</span>
+                                      <span className="font-medium">{child.title || "No title"}</span>
                                       <span
                                         className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
                                       >
@@ -919,7 +906,7 @@ export default function SearchWidget() {
                               </ol>
                             </div>
                           ) : (
-                            <div className="text-gray-500">No references available.</div>
+                            <div className="text-gray-500">No children available.</div>
                           )}
                         </div>
                       )}
@@ -984,13 +971,13 @@ export default function SearchWidget() {
 <script>
   window.API_KEY = "${storedApiKey}";
 <\/script>
-<link rel="stylesheet" href="http://client-private-api-stage.izi.travel/widget.css">
-<script src="http://client-private-api-stage.izi.travel/widget.js"><\/script>`}
+<link rel="stylesheet" href="http://localhost:3000/widget.css">
+<script src="http://localhost:3000/widget.js"><\/script>`}
               </pre>
               <button
                 className="absolute top-2 right-2 bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
                 onClick={() => {
-                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://client-private-api-stage.izi.travel/widget.css\">\n<script src=\"http://client-private-api-stage.izi.travel/widget.js\"><\/script>`
+                  const code = `<div id=\"my-widget-root\"></div>\n<script>\n  window.API_KEY = \"${storedApiKey}\";\n<\/script>\n<link rel=\"stylesheet\" href=\"http://localhost:3000/widget.css\">\n<script src=\"http://localhost:3000/widget.js\"><\/script>`
                   navigator.clipboard.writeText(code.replace(/\\n/g, "\n"))
                 }}
               >
