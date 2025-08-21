@@ -267,7 +267,7 @@ export default function SharedDetailsView({
               </filter>
             </defs>
             <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow)"/>
-            <circle cx="18" cy="13" r="7" fill="#fff"/>
+            <circle cx="18" cy="13" r="7" fill="red"/>
     <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
           </svg>
         `
@@ -305,7 +305,7 @@ export default function SharedDetailsView({
       const createPinHtml = (index, size = 36, pinColor = '#0E5671') => `
         <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}"/>
-          <circle cx="18" cy="13" r="7" fill="#fff"/>
+          <circle cx="18" cy="13" r="7" fill="red"/>
         </svg>`
 
       const icon = L.divIcon({ html: createPinHtml(0, 36, '#0E5671'), className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
@@ -327,7 +327,7 @@ export default function SharedDetailsView({
           </filter>
         </defs>
         <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow${index})"/>
-        <circle cx="18" cy="13" r="7" fill="#fff"/>
+        <circle cx="18" cy="13" r="7" fill="red"/>
     <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
       </svg>`
 
