@@ -37,6 +37,7 @@ export default function SharedDetailsView({
   const itemImage = currentItem.images?.[0]?.url
   const itemAudio = currentItem.content?.[0]?.audio?.[0]?.url
   const itemDescription = currentItem.description || ""
+  const affiliateLink = selectedChild?.affiliateLink || selectedItem?.affiliateLink || ""
 
   const rawChildren = selectedItem?.content?.[0]?.children || []
   const contentList = rawChildren.filter((it) =>
@@ -424,6 +425,13 @@ export default function SharedDetailsView({
             <p>No description available.</p>
           )}
         </div>
+        {affiliateLink ? (
+          <div className="mt-2 mb-4">
+            <a href={affiliateLink} target="_blank" rel="noopener noreferrer" className="inline-block bg-[#0E5671] hover:bg-[#083c4d] text-white px-4 py-2 rounded no-underline">
+              More details
+            </a>
+          </div>
+        ) : null}
 
   {/* Show the map when we have coordinates (either selected child, selected item coords, or content points). */}
   {showMapInPanel && hasCoords && <MapView />}

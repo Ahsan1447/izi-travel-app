@@ -67,7 +67,7 @@ export default function TourDetailWidget() {
     // Check if we already have the details for this child
     if (childDetailsCache[child.uuid]) {
   // Use shallow copies so identity changes and downstream effects run
-  setSelectedChild({ ...childDetailsCache[child.uuid] })
+  setSelectedChild({ ...childDetailsCache[child.uuid], affiliateLink: childDetailsCache[child.uuid].affiliateLink ?? child.affiliateLink })
   setSelectedItem({ ...item })
   setSelectionVersion((v) => v + 1)
       setError("")
@@ -140,11 +140,11 @@ export default function TourDetailWidget() {
         // Cache the fetched details
         setChildDetailsCache((prev) => ({
           ...prev,
-          [child.uuid]: childDetails,
+          [child.uuid]: { ...childDetails, affiliateLink: childDetails.affiliateLink ?? child.affiliateLink },
         }))
 
   // Set the selected child with full details (use shallow copies)
-  setSelectedChild({ ...childDetails })
+  setSelectedChild({ ...childDetails, affiliateLink: childDetails.affiliateLink ?? child.affiliateLink })
   setSelectedItem({ ...item })
   setSelectionVersion((v) => v + 1)
       } else {
@@ -200,6 +200,7 @@ export default function TourDetailWidget() {
                 title
                 uuid
                 language
+                affiliateLink
                 description
                 userLimit
                 images { url }
@@ -273,7 +274,7 @@ export default function TourDetailWidget() {
 
   return (
     <main className="bg-gray-100 text-black">
-      <div className="w-full max-w-full mx-auto px-8 py-6 relative overflow-hidden">
+      <div className="w-full max-w-full mx-auto py-6 relative overflow-hidden">
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
         {/* Limit reached message for details */}

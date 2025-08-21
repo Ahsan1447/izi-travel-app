@@ -136,11 +136,11 @@ export default function SearchWidget() {
         // Cache the fetched details
         setChildDetailsCache((prev) => ({
           ...prev,
-          [child.uuid]: childDetails,
+          [child.uuid]: { ...childDetails, affiliateLink: childDetails.affiliateLink ?? child.affiliateLink },
         }))
 
         // Set the selected child with full details
-        setSelectedChild(childDetails)
+        setSelectedChild({ ...childDetails, affiliateLink: childDetails.affiliateLink ?? child.affiliateLink })
         setSelectedItem(item)
       } else {
         throw new Error("No details found for this item")
@@ -925,13 +925,13 @@ export default function SearchWidget() {
           {(selectedChild || selectedItem) && (
             <>
               <div className="mt-10 overflow-y-auto bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
-                <SharedDetailsView
-                  selectedChild={selectedChild}
-                  selectedItem={selectedItem}
-                  limitReached={limitReached}
-                  markerNumber={getMarkerNumber()}
-                  onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
-                />
+              <SharedDetailsView
+              selectedChild={selectedChild}
+              selectedItem={selectedItem}
+              limitReached={limitReached}
+              markerNumber={getMarkerNumber()}
+              onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
+              />
               </div>
               <div className="mt-10 bg-white text-black rounded-lg border border-gray-300 shadow-sm p-3" style={{ height: '402px' }}>
                 <SharedDetailsView
