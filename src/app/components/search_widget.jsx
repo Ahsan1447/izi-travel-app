@@ -36,6 +36,7 @@ export default function SearchWidget() {
   const [storedApiKey, setStoredApiKey] = useState("")
   const [childDetailsCache, setChildDetailsCache] = useState({})
   const [fetchingChildDetails, setFetchingChildDetails] = useState(false)
+  const [selectionVersion, setSelectionVersion] = useState(0)
 
   // Check user limit on component mount
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function SearchWidget() {
     if (type && idx !== null) {
       setExpandedIdx(expandedIdx.type === type && expandedIdx.idx === idx ? { type: null, idx: null } : { type, idx })
     }
+    setSelectionVersion((v) => v + 1)
     setError("") // Clear any previous errors
   }
 
@@ -78,8 +80,9 @@ export default function SearchWidget() {
 
     // Check if we already have the details for this child
     if (childDetailsCache[child.uuid]) {
-      setSelectedChild(childDetailsCache[child.uuid])
-      setSelectedItem(item)
+      setSelectedChild({ ...childDetailsCache[child.uuid] })
+      setSelectedItem({ ...item })
+      setSelectionVersion((v) => v + 1)
       setError("")
       return
     }
@@ -141,15 +144,17 @@ export default function SearchWidget() {
 
         // Set the selected child with full details
         setSelectedChild({ ...childDetails, affiliateLink: childDetails.affiliateLink ?? child.affiliateLink })
-        setSelectedItem(item)
+        setSelectedItem({ ...item })
+        setSelectionVersion((v) => v + 1)
       } else {
         throw new Error("No details found for this item")
       }
     } catch (err) {
       setError(err.message || "Failed to fetch child details")
       // Fallback to showing basic child info
-      setSelectedChild(child)
-      setSelectedItem(item)
+      setSelectedChild({ ...child })
+      setSelectedItem({ ...item })
+      setSelectionVersion((v) => v + 1)
     } finally {
       setFetchingChildDetails(false)
     }
@@ -448,11 +453,12 @@ export default function SearchWidget() {
   }
 
   const handleSelectSuggestion = (item) => {
-    setSelectedItem(item)
+    setSelectedItem({ ...item })
     setShowSuggestions(false)
     setSuggestions([])
     setSearchTerm(item.title)
     setSelectedChild(null)
+    setSelectionVersion((v) => v + 1)
   }
 
   const renderTourCard = (item, idx, isExpanded, onExpand) => (
@@ -930,6 +936,7 @@ export default function SearchWidget() {
               selectedItem={selectedItem}
               limitReached={limitReached}
               markerNumber={getMarkerNumber()}
+              selectionVersion={selectionVersion}
               onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
               />
               </div>
@@ -939,6 +946,7 @@ export default function SearchWidget() {
                   selectedItem={selectedItem}
                   limitReached={limitReached}
                   markerNumber={getMarkerNumber()}
+                  selectionVersion={selectionVersion}
                   mapOnly={true}
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />

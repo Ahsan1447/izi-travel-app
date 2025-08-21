@@ -87,27 +87,34 @@ export default function SharedDetailsView({
 
       const map = L.map(mapRef.current, { zoomControl: true, zoomAnimation: true })
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map)
-
+      })
       const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       })
+      osmLayer.addTo(map)
 
       mapInstanceRef.current = map
       markersLayerRef.current = L.layerGroup().addTo(map)
 
-      const baseMaps = {
-        Map: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }),
-        Satellite: satelliteLayer,
-      }
+      const baseMaps = { Map: osmLayer, Satellite: satelliteLayer }
       L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map)
 
-      setTimeout(() => {
+      try { map.setView([0, 0], 2) } catch (_) {}
+
+      const ensureSized = (attempt = 0) => {
         try { map.invalidateSize() } catch (_) {}
+        try {
+          const size = map.getSize ? map.getSize() : { x: 0, y: 0 }
+          if ((size.x === 0 || size.y === 0) && attempt < 8) {
+            setTimeout(() => ensureSized(attempt + 1), 150)
+            return
+          }
+        } catch (_) {}
         updateMarkers()
-      }, 150)
+      }
+      setTimeout(() => ensureSized(0), 150)
     } catch (_) {}
   }
 
@@ -134,37 +141,40 @@ export default function SharedDetailsView({
         zoomAnimation: true,
       })
 
-      // Add base layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // Base layers
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map)
-
-      // Add satellite layer (but don't add it to map by default)
+      })
       const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       })
+      osmLayer.addTo(map)
 
       mapInstanceRef.current = map
       markersLayerRef.current = L.layerGroup().addTo(map)
 
       // Set up layer control
-      const baseMaps = {
-        Map: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap contributors',
-        }),
-        Satellite: satelliteLayer,
-      }
+      const baseMaps = { Map: osmLayer, Satellite: satelliteLayer }
 
       // Add layer control to map
       L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map)
 
+      // Set a default view so tiles start loading; later updates will adjust
+      try { map.setView([0, 0], 2) } catch (_) {}
+
       // Ensure map size is calculated correctly
-      setTimeout(() => {
+      const ensureSized = (attempt = 0) => {
+        try { map.invalidateSize() } catch (_) {}
         try {
-          map.invalidateSize()
+          const size = map.getSize ? map.getSize() : { x: 0, y: 0 }
+          if ((size.x === 0 || size.y === 0) && attempt < 8) {
+            setTimeout(() => ensureSized(attempt + 1), 150)
+            return
+          }
         } catch (_) {}
         updateMarkers()
-      }, 150)
+      }
+      setTimeout(() => ensureSized(0), 150)
     }
 
     const ensureContainerAndLoad = () => {
@@ -190,6 +200,16 @@ export default function SharedDetailsView({
         }
         document.body.appendChild(script)
       } else {
+        // Ensure Leaflet CSS is present even if script is already loaded
+        try {
+          const hasLeafletCss = !!document.querySelector('link[href*="leaflet.css"]')
+          if (!hasLeafletCss) {
+            const link = document.createElement('link')
+            link.rel = 'stylesheet'
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+            document.head.appendChild(link)
+          }
+        } catch (_) {}
         initMap()
       }
     }
@@ -207,16 +227,14 @@ export default function SharedDetailsView({
         markersLayerRef.current = null
       }
     }
-  }, [hasCoords, mapOnly, selectionVersion])
+  }, [mapOnly, showMapInPanel, selectionVersion])
 
   // If selected item/child changes while the map is mounted, ensure the map updates.
   // Some browsers / Leaflet instances may not update layers properly when props change,
   // so recreate the map if it's missing, otherwise refresh markers.
   useEffect(() => {
     if (!mapOnly && !showMapInPanel) return
-    if (!hasCoords) return
-    const map = mapInstanceRef.current
-    // Force a recreate so the new selection is always fully rendered.
+    // Recreate map only when parent selection changes; for child selection, just update markers
     try {
       createOrRecreateMap()
     } catch (_) {
@@ -225,13 +243,24 @@ export default function SharedDetailsView({
         try { updateMarkers() } catch (_) {}
       }, 50)
     }
-  }, [selectedItem?.uuid, selectedChild?.uuid, selectionVersion])
+  }, [selectedItem?.uuid, selectionVersion])
 
   // Update markers when selectedItem or selectedChild changes
   useEffect(() => {
     if (!mapInstanceRef.current) return
     updateMarkers()
   }, [selectedItem, selectedChild, selectionVersion])
+
+  // Ensure map shows and updates when a child is selected: if map not ready, create it; otherwise update markers
+  useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
+    if (!selectedChild) return
+    if (!mapInstanceRef.current) {
+      try { createOrRecreateMap() } catch (_) {}
+    } else {
+      try { updateMarkers() } catch (_) {}
+    }
+  }, [selectedChild?.uuid])
 
   const updateMarkers = () => {
     const L = window.L
@@ -251,59 +280,32 @@ export default function SharedDetailsView({
     // Get all points (children/references)
     const points = getPoints()
 
-    if (selectedChild && selectedChild.location &&
-        Number.isFinite(Number(selectedChild.location.latitude)) &&
-        Number.isFinite(Number(selectedChild.location.longitude))) {
+    // If no points available from parent but selected child has coordinates, show that single child marker in gray
+    const childHasCoords = selectedChild &&
+      Number.isFinite(Number(selectedChild.location?.latitude)) &&
+      Number.isFinite(Number(selectedChild.location?.longitude))
 
+    if (!points.length && childHasCoords) {
       const lat = Number(selectedChild.location.latitude)
       const lng = Number(selectedChild.location.longitude)
+      const createPinHtml = (index, size = 36, pinColor = 'red', numberColor = '#ffffff') => `
+        <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="pinShadowSingle" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/>
+            </filter>
+          </defs>
+          <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadowSingle)"/>
+          <circle cx="18" cy="13" r="7" fill="red"/>
+          <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">1</text>
+        </svg>`
 
-  // Use a numbered SVG pin for the single selected child (larger, highlighted)
-  const createPinHtml = (index, size = 44, pinColor = '#D60D46', numberColor = '#0E5671') => {
-        const s = size
-        return `
-          <svg width="${s}" height="${s}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.35"/>
-              </filter>
-            </defs>
-            <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow)"/>
-            <circle cx="18" cy="13" r="7" fill="red"/>
-    <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
-          </svg>
-        `
-      }
-
-      const indexNumber = Number.isFinite(Number(markerNumber)) ? Number(markerNumber) : (() => {
-        const list = getPoints()
-        const found = list.find((p) => p.uuid === selectedChild.uuid)
-        return found ? found.index : 1
-      })()
-      const iconHtml = createPinHtml(indexNumber, 44, '#D60D46')
-      const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 44] })
+      const icon = L.divIcon({ html: createPinHtml(1), className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
       const m = L.marker([lat, lng], { icon })
       m.addTo(layer)
       m.bindPopup(`<b>${selectedChild.title || 'Untitled'}</b>`)
-
-      let attempts = 0
-      const centerWhenReady = () => {
-        attempts += 1
-        try {
-          map.invalidateSize()
-        } catch (_) {}
-        try {
-          const size = map.getSize ? map.getSize() : { x: 0, y: 0 }
-          if ((size.x === 0 || size.y === 0) && attempts <= 10) {
-            setTimeout(centerWhenReady, 200)
-            return
-          }
-          map.setView([lat, lng], 17)
-        } catch (_) {
-          if (attempts <= 10) setTimeout(centerWhenReady, 200)
-        }
-      }
-      setTimeout(centerWhenReady, 50)
+      try { map.invalidateSize() } catch (_) {}
+      try { map.setView([lat, lng], 17) } catch (_) {}
       return
     }
 
@@ -323,7 +325,13 @@ export default function SharedDetailsView({
       return
     }
 
-    if (!points.length) return
+    if (!points.length) {
+      // No points and no item coords handled below; if neither, fallback to world view
+      if (!childHasCoords && !(latitude && longitude)) {
+        try { map.setView([0, 0], 2) } catch (_) {}
+      }
+      return
+    }
 
   // Create numbered teardrop pin icons for each point
   const createPinHtml = (index, size = 36, pinColor = '#D60D46', numberColor = '#0E5671') => `
@@ -339,8 +347,10 @@ export default function SharedDetailsView({
       </svg>`
 
     const markers = points.map((p) => {
-      // pin red, number uses route blue
-      const html = createPinHtml(p.index, 36, '#D60D46', '#0E5671')
+      const isSelected = selectedChild && p.uuid === selectedChild.uuid
+      const pinColor = isSelected ? 'red' : '#D60D46'
+      const numberColor = isSelected ? '#ffffff' : '#0E5671'
+      const html = createPinHtml(p.index, 36, pinColor, numberColor)
       const icon = L.divIcon({ html, className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
       const m = L.marker([p.lat, p.lng], { icon })
 
@@ -356,7 +366,7 @@ export default function SharedDetailsView({
     })
 
     // If this selection is a tour, draw a styled route: white outline under a teal main line
-    if (selectedItem?.type === 'tour') {
+    if ((selectedItem?.type === 'tour' || selectedItem?.type === 'museum') && points.length >= 2) {
       const latlngs = points.map((p) => [p.lat, p.lng])
       // Outline for contrast on map tiles
       const outline = L.polyline(latlngs, { color: '#ffffff', weight: 8, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
@@ -370,32 +380,34 @@ export default function SharedDetailsView({
       } catch (_) {}
     }
 
-    try {
-      const group = L.featureGroup(markers)
+    const selectedPoint = selectedChild && points.find((p) => p.uuid === selectedChild.uuid)
+    if (selectedPoint) {
+      try { map.invalidateSize() } catch (_) {}
       try {
-        map.invalidateSize()
-        map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 17 })
-      } catch (_) {
-        map.setView([points[0].lat, points[0].lng], 13)
-      }
-    } catch (_) {
-      try {
-        map.invalidateSize()
-        map.setView([points[0].lat, points[0].lng], 13)
+        map.setView([selectedPoint.lat, selectedPoint.lng], 17)
       } catch (_) {}
+    } else {
+      try {
+        const group = L.featureGroup(markers)
+        try {
+          map.invalidateSize()
+          map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 17 })
+        } catch (_) {
+          map.setView([points[0].lat, points[0].lng], 13)
+        }
+      } catch (_) {
+        try {
+          map.invalidateSize()
+          map.setView([points[0].lat, points[0].lng], 13)
+        } catch (_) {}
+      }
     }
   }
 
   const MapView = () => (
-    hasCoords ? (
-      <div className="relative w-full h-full rounded overflow-hidden border border-white bg-white">
-        <div ref={mapRef} className="w-full h-full" style={{ height: "100%", minHeight: "300px" }} />
-      </div>
-    ) : (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500" style={{ minHeight: "300px" }}>
-        Location not available
-      </div>
-    )
+    <div className="relative w-full h-full rounded overflow-hidden border border-white bg-white">
+      <div ref={mapRef} className="w-full h-full" style={{ height: "100%", minHeight: "300px" }} />
+    </div>
   )
 
   if (mapOnly) {
@@ -433,8 +445,8 @@ export default function SharedDetailsView({
           </div>
         ) : null}
 
-  {/* Show the map when we have coordinates (either selected child, selected item coords, or content points). */}
-  {showMapInPanel && hasCoords && <MapView />}
+  {/* Show the map panel when requested; default view is set during initialization */}
+  {showMapInPanel && <MapView />}
       </div>
     </div>
   )

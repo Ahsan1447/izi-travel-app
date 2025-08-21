@@ -469,7 +469,7 @@ export default function TourDetailWidget() {
                   onSelectMarker={(child, parent) => handleSelectChild(child, parent)}
                 />
               </div>
-              <div className="mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3">
+              <div className="mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
                 <SharedDetailsView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
