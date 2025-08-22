@@ -305,12 +305,12 @@ export default function TourDetailWidget() {
                     {tours.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-200 p-4 cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          onClick={() => handleTitleClick(item, "tour", idx)}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className={`font-semibold cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
-                              onClick={() => handleTitleClick(item, "tour", idx)}
+                              className={`font-semibold ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
                             >
                               {item.title}
                             </span>
@@ -378,19 +378,19 @@ export default function TourDetailWidget() {
                     {museums.map((item, idx) => (
                       <div key={item.uuid}>
                         <div
-                          className={`flex justify-between items-center border-b border-gray-300 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          className={`flex justify-between items-center border-b border-gray-300 p-4 cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                          onClick={() => handleTitleClick(item, "museum", idx)}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className={`font-semibold cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
-                              onClick={() => handleTitleClick(item, "museum", idx)}
+                              className={`font-semibold ${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-800"}`}
                             >
                               {item.title}
                             </span>
                           </div>
                           <button
                             className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
-                            onClick={() => handleViewDetails(item, "museum", idx)}
+                            onClick={(e) => { e.stopPropagation(); handleViewDetails(item, "museum", idx); }}
                           >
                             Visit Museum
                           </button>

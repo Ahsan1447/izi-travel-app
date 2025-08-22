@@ -797,34 +797,35 @@ export default function SearchWidget() {
                   {tours.map((item, idx) => (
                     <div key={item.uuid}>
                       <div
-                        className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                        className={`flex justify-between items-center border-b border-gray-200 p-4 cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                        onClick={() => {
+                          if (!limitReached) {
+                            setExpandedIdx(
+                              expandedIdx.type === "tour" && expandedIdx.idx === idx
+                                ? { type: null, idx: null }
+                                : { type: "tour", idx },
+                            )
+                            // Toggle tour details - if same tour is clicked, hide it
+                            if (selectedItem && selectedItem.uuid === item.uuid) {
+                              setSelectedItem(null)
+                              setSelectedChild(null)
+                            } else {
+                              setSelectedItem(item)
+                              setSelectedChild(null)
+                            }
+                          }
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <input
                             type="checkbox"
                             checked={!!selectedUuids[item.uuid]}
                             onChange={() => toggleSelection(item.uuid)}
+                            onClick={(e) => e.stopPropagation()}
                             className="text-purple-600"
                           />
                           <span
-                            className="font-semibold cursor-pointer text-gray-800"
-                            onClick={() => {
-                              if (!limitReached) {
-                                setExpandedIdx(
-                                  expandedIdx.type === "tour" && expandedIdx.idx === idx
-                                    ? { type: null, idx: null }
-                                    : { type: "tour", idx },
-                                )
-                                // Toggle tour details - if same tour is clicked, hide it
-                                if (selectedItem && selectedItem.uuid === item.uuid) {
-                                  setSelectedItem(null)
-                                  setSelectedChild(null)
-                                } else {
-                                  setSelectedItem(item)
-                                  setSelectedChild(null)
-                                }
-                              }
-                            }}
+                            className="font-semibold text-gray-800"
                           >
                             {item.title}
                           </span>
@@ -892,34 +893,35 @@ export default function SearchWidget() {
                   {museums.map((item, idx) => (
                     <div key={item.uuid}>
                       <div
-                        className={`flex justify-between items-center border-b border-gray-200 p-4 ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                        className={`flex justify-between items-center border-b border-gray-200 p-4 cursor-pointer ${selectedItem && selectedItem.uuid === item.uuid ? "bg-[#0E5671] text-white" : "hover:bg-gray-50"}`}
+                        onClick={() => {
+                          if (!limitReached) {
+                            setExpandedIdx(
+                              expandedIdx.type === "museum" && expandedIdx.idx === idx
+                                ? { type: null, idx: null }
+                                : { type: "museum", idx },
+                            )
+                            // Toggle museum details - if same museum is clicked, hide it
+                            if (selectedItem && selectedItem.uuid === item.uuid) {
+                              setSelectedItem(null)
+                              setSelectedChild(null)
+                            } else {
+                              setSelectedItem(item)
+                              setSelectedChild(null)
+                            }
+                          }
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <input
                             type="checkbox"
                             checked={!!selectedUuids[item.uuid]}
                             onChange={() => toggleSelection(item.uuid)}
+                            onClick={(e) => e.stopPropagation()}
                             className="text-purple-600"
                           />
                           <span
-                            className="font-semibold cursor-pointer text-gray-800"
-                            onClick={() => {
-                              if (!limitReached) {
-                                setExpandedIdx(
-                                  expandedIdx.type === "museum" && expandedIdx.idx === idx
-                                    ? { type: null, idx: null }
-                                    : { type: "museum", idx },
-                                )
-                                // Toggle museum details - if same museum is clicked, hide it
-                                if (selectedItem && selectedItem.uuid === item.uuid) {
-                                  setSelectedItem(null)
-                                  setSelectedChild(null)
-                                } else {
-                                  setSelectedItem(item)
-                                  setSelectedChild(null)
-                                }
-                              }
-                            }}
+                            className="font-semibold text-gray-800"
                           >
                             {item.title}
                           </span>
