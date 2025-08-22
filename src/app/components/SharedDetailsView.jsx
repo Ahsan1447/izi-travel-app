@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useEffect, useState } from "react"
 
 export default function SharedDetailsView({
   selectedChild,
@@ -38,6 +38,64 @@ export default function SharedDetailsView({
   const itemAudio = currentItem.content?.[0]?.audio?.[0]?.url
   const itemDescription = currentItem.description || ""
   const affiliateLink = selectedChild?.affiliateLink || selectedItem?.affiliateLink || ""
+
+  // Collect images from selected item, selected child, and all children of the selected item
+  const collectImages = () => {
+    const urls = []
+    const pushUrl = (u) => { if (u && typeof u === "string") urls.push(u) }
+    try {
+      (currentItem?.images || []).forEach(img => pushUrl(img?.url))
+    } catch (_) {}
+    try {
+      (selectedChild?.images || []).forEach(img => pushUrl(img?.url))
+    } catch (_) {}
+    try {
+      const children = selectedItem?.content?.[0]?.children || []
+      children.forEach(child => {
+        (child?.images || []).forEach(img => pushUrl(img?.url))
+      })
+    } catch (_) {}
+    const seen = new Set()
+    return urls.filter(u => { if (!u || seen.has(u)) return false; seen.add(u); return true })
+  }
+  const imageUrls = collectImages()
+  const totalImages = imageUrls.length
+
+  const [currentIdx, setCurrentIdx] = useState(0)
+  useEffect(() => { setCurrentIdx(0) }, [selectedItem?.uuid, selectedChild?.uuid, selectionVersion])
+
+  const [transitioning, setTransitioning] = useState(false)
+  const [prevIdx, setPrevIdx] = useState(null)
+  const [nextIdx, setNextIdx] = useState(null)
+  const [animTrigger, setAnimTrigger] = useState(false)
+
+  const startTransition = (toIdx) => {
+    if (!totalImages) return
+    if (transitioning) return
+    const safeToIdx = ((toIdx % totalImages) + totalImages) % totalImages
+    if (safeToIdx === currentIdx) return
+    setPrevIdx(currentIdx)
+    setNextIdx(safeToIdx)
+    setTransitioning(true)
+    setAnimTrigger(false)
+    requestAnimationFrame(() => setAnimTrigger(true))
+    setTimeout(() => {
+      setCurrentIdx(safeToIdx)
+      setTransitioning(false)
+      setPrevIdx(null)
+      setNextIdx(null)
+      setAnimTrigger(false)
+    }, 300)
+  }
+
+  const goNext = () => startTransition(currentIdx + 1)
+  const goPrev = () => startTransition(currentIdx - 1)
+
+  const getKbClass = (idx) => {
+    const dirs = ["kb-tl", "kb-tr", "kb-bl", "kb-br"]
+    const i = typeof idx === "number" ? idx : 0
+    return dirs[((i % dirs.length) + dirs.length) % dirs.length]
+  }
 
   const rawChildren = selectedItem?.content?.[0]?.children || []
   const contentList = rawChildren.filter((it) =>
@@ -411,8 +469,63 @@ export default function SharedDetailsView({
       <div className="flex flex-col items-center w-full divide-y divide-white">
         <h2 className="text-2xl font-bold mb-4 text-center text-[#0E5671]">{itemTitle}</h2>
 
-        {itemImage ? (
-          <img src={itemImage || "/placeholder.svg"} alt={itemTitle} className="w-full max-w-md mb-4 rounded shadow" />
+        {imageUrls.length > 0 ? (
+          <div
+            className="relative w-full max-w-md mb-4 rounded shadow overflow-hidden"
+          >
+            {transitioning ? (
+              <>
+                <img
+                  src={imageUrls[prevIdx] || "/placeholder.svg"}
+                  alt={`${itemTitle} image ${Number(prevIdx) + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover select-none kb-img ${getKbClass(prevIdx)}`}
+                  style={{
+                    opacity: animTrigger ? 0 : 1,
+                    transition: "opacity 600ms ease",
+                  }}
+                  draggable={false}
+                />
+                <img
+                  src={imageUrls[nextIdx] || "/placeholder.svg"}
+                  alt={`${itemTitle} image ${Number(nextIdx) + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover select-none kb-img ${getKbClass(nextIdx)}`}
+                  style={{
+                    opacity: animTrigger ? 1 : 0,
+                    transition: "opacity 600ms ease",
+                  }}
+                  draggable={false}
+                />
+              </>
+            ) : (
+              <img
+                src={imageUrls[currentIdx] || "/placeholder.svg"}
+                alt={`${itemTitle} image ${currentIdx + 1}`}
+                className={`w-full object-cover select-none kb-img ${getKbClass(currentIdx)}`}
+                draggable={false}
+              />
+            )}
+            {/* Left overlay button: displays '>' and goes to previous image as requested */}
+            <button
+              type="button"
+              aria-label="Previous image"
+              className="absolute inset-y-0 left-0 w-1/5 flex items-center justify-start text-white text-3xl bg-transparent hover:bg-black/10 focus:outline-none"
+              onClick={(e) => { e.stopPropagation(); goPrev() }}
+            >
+              <span className="px-3">&gt;</span>
+            </button>
+            {/* Right overlay button: displays '<' and goes to next image as requested */}
+            <button
+              type="button"
+              aria-label="Next image"
+              className="absolute inset-y-0 right-0 w-1/5 flex items-center justify-end text-white text-3xl bg-transparent hover:bg-black/10 focus:outline-none"
+              onClick={(e) => { e.stopPropagation(); goNext() }}
+            >
+              <span className="px-3">&lt;</span>
+            </button>
+            <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+              {currentIdx + 1} / {totalImages}
+            </div>
+          </div>
         ) : (
           <div className="w-full max-w-md mb-4 flex items-center justify-center h-32 bg-gray-100 rounded shadow text-gray-400 text-lg font-semibold">
             N/A
@@ -438,6 +551,17 @@ export default function SharedDetailsView({
 
         {showMapInPanel && <MapView />}
       </div>
+      <style jsx>{`
+        .kb-img { will-change: transform; transform-origin: center; }
+        .kb-tl { animation: kb-tl 12s ease-in-out forwards; }
+        .kb-tr { animation: kb-tr 12s ease-in-out forwards; }
+        .kb-bl { animation: kb-bl 12s ease-in-out forwards; }
+        .kb-br { animation: kb-br 12s ease-in-out forwards; }
+        @keyframes kb-tl { from { transform: scale(1.05) translate3d(2%, 2%, 0); } to { transform: scale(1.2) translate3d(-2%, -2%, 0); } }
+        @keyframes kb-tr { from { transform: scale(1.05) translate3d(-2%, 2%, 0); } to { transform: scale(1.2) translate3d(2%, -2%, 0); } }
+        @keyframes kb-bl { from { transform: scale(1.05) translate3d(2%, -2%, 0); } to { transform: scale(1.2) translate3d(-2%, 2%, 0); } }
+        @keyframes kb-br { from { transform: scale(1.05) translate3d(-2%, -2%, 0); } to { transform: scale(1.2) translate3d(2%, 2%, 0); } }
+      `}</style>
     </div>
   )
 }
