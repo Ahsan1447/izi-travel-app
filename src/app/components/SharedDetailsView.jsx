@@ -511,7 +511,7 @@ export default function SharedDetailsView({
               className="absolute inset-y-0 left-0 w-1/5 flex items-center justify-start text-white text-3xl bg-transparent hover:bg-black/10 focus:outline-none"
               onClick={(e) => { e.stopPropagation(); goPrev() }}
             >
-              <span className="px-3">&gt;</span>
+              <span className="">&gt;</span>
             </button>
             {/* Right overlay button: displays '<' and goes to next image as requested */}
             <button
@@ -520,7 +520,7 @@ export default function SharedDetailsView({
               className="absolute inset-y-0 right-0 w-1/5 flex items-center justify-end text-white text-3xl bg-transparent hover:bg-black/10 focus:outline-none"
               onClick={(e) => { e.stopPropagation(); goNext() }}
             >
-              <span className="px-3">&lt;</span>
+              <span className="">&lt;</span>
             </button>
             <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
               {currentIdx + 1} / {totalImages}
