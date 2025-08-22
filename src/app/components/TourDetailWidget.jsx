@@ -298,7 +298,7 @@ export default function TourDetailWidget() {
             <div>
               <h2 className="text-2xl font-bold mb-4 text-black">Tour & Museum List</h2>
               <div className="bg-white overflow-y-auto border border-gray-300 shadow-sm"
-                style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '402px' : 'auto' }}>
+                style={{ height: (expandedIdx?.type === "tour" || expandedIdx?.type === "museum" || totalListCount > 3) ? '425px' : 'auto' }}>
                 {/* Tours Section */}
                 {tours.length > 0 && (
                   <div>

@@ -37,6 +37,12 @@ export default function SearchWidget() {
   const [childDetailsCache, setChildDetailsCache] = useState({})
   const [fetchingChildDetails, setFetchingChildDetails] = useState(false)
   const [selectionVersion, setSelectionVersion] = useState(0)
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageCache, setPageCache] = useState({})
+  const [lastPageReached, setLastPageReached] = useState(false)
+  const [pageNotice, setPageNotice] = useState("")
+  const [paginationLoading, setPaginationLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
 
   // Check user limit on component mount
   useEffect(() => {
@@ -305,19 +311,38 @@ export default function SearchWidget() {
     }
   }
 
-  const fetchSuggestions = async (term) => {
-    setLoading(true)
+  const buildSearchInput = (page) => ({
+    limit: 20,
+    offset: page, // page index as offset per requirement
+    query: searchTerm.trim(),
+    region: region.trim(),
+    type: "tour,museum",
+    queryFilters: ["title", "description"],
+    languages,
+  })
+
+  const fetchPage = async (page, opts = {}) => {
+    const fromPagination = !!opts.fromPagination
+    // Serve from cache if available
+    if (pageCache[page]) {
+      setResults(pageCache[page])
+      setPageIndex(page)
+      if (fromPagination) {
+        setPageNotice("")
+        setPaginationLoading(false)
+      }
+      return
+    }
+
+    if (fromPagination) {
+      setPaginationLoading(true)
+      setPageNotice("Searching...")
+    } else {
+      setLoading(true)
+    }
     setError("")
     try {
-      const input = {
-        limit: 10,
-        offset: 0,
-        query: term.trim(),
-        region: region.trim(),
-        type: "tour,museum",
-        queryFilters: ["title", "description"],
-        languages,
-      }
+      const input = buildSearchInput(page)
       const response = await fetch("http://client-private-api-stage.izi.travel/graphql", {
         method: "POST",
         headers: {
@@ -371,6 +396,7 @@ export default function SearchWidget() {
       const { data, errors } = await response.json()
       if (errors) throw new Error(errors[0].message)
       const items = Array.isArray(data?.search?.data) ? data.search.data : []
+
       const limitFalse = items.some((i) => i?.userLimit === false)
       if (limitFalse) {
         setLimitReached(true)
@@ -380,13 +406,64 @@ export default function SearchWidget() {
       } else {
         setLimitReached(false)
       }
+
       const filtered = items.filter((item) => item.status === "published")
+
+      if (filtered.length === 0) {
+        setLastPageReached(true)
+        if (fromPagination) {
+          showPageToast("No content at next page")
+          setPageNotice("")
+        }
+        if (page === 0) setResults([])
+        return
+      }
+
+      setPageCache((prev) => ({ ...prev, [page]: filtered }))
       setResults(filtered)
+      setPageIndex(page)
+      setLastPageReached(false)
     } catch (err) {
       setError(err.message || "Failed to fetch suggestions")
     } finally {
-      setLoading(false)
+      if (fromPagination) {
+        setPaginationLoading(false)
+        setPageNotice("")
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const startNewSearch = async () => {
+    setPageIndex(0)
+    setPageCache({})
+    setLastPageReached(false)
+    setPageNotice("")
+    setHasSearched(true)
+    await fetchPage(0)
+  }
+
+  const showPageToast = (msg) => {
+    setPageNotice(msg)
+    setTimeout(() => setPageNotice("") , 2000)
+  }
+
+  const prevClick = () => {
+    if (pageIndex === 0) {
+      showPageToast("No content at previous page")
+      return
+    }
+    fetchPage(pageIndex - 1, { fromPagination: true })
+  }
+
+  const nextClick = () => {
+    const next = pageIndex + 1
+    if (lastPageReached && !pageCache[next]) {
+      showPageToast("No content at next page")
+      return
+    }
+    fetchPage(next, { fromPagination: true })
   }
 
   const toggleSelection = (uuid) => {
@@ -508,17 +585,7 @@ export default function SearchWidget() {
     <div key={item.title} className="flex flex-col gap-2 p-4 border-b border-gray-300">
       <div className="flex justify-between items-center cursor-pointer hover:bg-gray-700" onClick={() => onExpand(idx)}>
         <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-        <button
-          className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-3 py-1 rounded text-xs"
-          onClick={(e) => {
-            e.stopPropagation()
-            setSelectedItem(selectedItem && selectedItem.title === item.title ? null : item)
-            setSelectedChild(null)
-          }}
-        >
-          Visit Museum
-        </button>
-      </div>
+              </div>
       {isExpanded && (item.content?.[0]?.children?.filter((c) => c?.status === "published")?.length > 0) && (
         <div className="ml-4 mt-2">
           <div className="font-semibold text-sm mb-1">Stories:</div>
@@ -590,7 +657,7 @@ export default function SearchWidget() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            fetchSuggestions(searchTerm)
+            startNewSearch()
           }}
           className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
@@ -857,15 +924,7 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
-                            onClick={() => handleViewDetails(item, "museum", idx)}
-                          >
-                            Visit Museum
-                          </button>
-                        </div>
-                      </div>
+                                              </div>
                       {/* Children list below the selected museum */}
                       {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
                         <div className="bg-gray-50 py-2 border-purple-500">
@@ -926,6 +985,26 @@ export default function SearchWidget() {
                 <div className="p-4 text-center text-gray-500">No published tours or museums found.</div>
               )}
             </div>
+            {/* Pagination controls */}
+            {hasSearched && (
+              <div className="flex items-center justify-between mt-3">
+                <button
+                  className={`px-3 py-2 rounded bg-gray-200 text-gray-800 ${pageIndex === 0 ? 'opacity-60' : ''}`}
+                  onClick={prevClick}
+                >
+                  Previous
+                </button>
+                <div className={`px-3 py-2 text-center ${paginationLoading ? 'text-gray-700' : pageNotice ? 'text-red-600' : 'text-gray-600'}`}>
+                  {paginationLoading ? 'Searching...' : (pageNotice || `Page ${pageIndex + 1}`)}
+                </div>
+                <button
+                  className={`px-3 py-2 rounded bg-custom-red-50 text-white ${(lastPageReached && !pageCache[pageIndex + 1]) ? 'opacity-60' : ''}`}
+                  onClick={nextClick}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
 
           {(selectedChild || selectedItem) && (
