@@ -318,6 +318,7 @@ export default function SearchWidget() {
     region: region.trim(),
     type: "tour,museum",
     queryFilters: ["title", "description"],
+    filterChildren: true,
     languages,
   })
 

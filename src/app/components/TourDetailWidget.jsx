@@ -230,7 +230,7 @@ export default function TourDetailWidget() {
             }
           }
         `,
-        variables: { input: { widgetApiKey: apiKey } },
+        variables: { input: { widgetApiKey: apiKey, filterChildren: true } },
       }),
     })
       .then((res) => res.json())
