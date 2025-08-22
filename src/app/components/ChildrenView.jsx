@@ -64,37 +64,14 @@ export default function SharedDetailsView({
   const [currentIdx, setCurrentIdx] = useState(0)
   useEffect(() => { setCurrentIdx(0) }, [selectedItem?.uuid, selectedChild?.uuid, selectionVersion])
 
-  const [transitioning, setTransitioning] = useState(false)
-  const [prevIdx, setPrevIdx] = useState(null)
-  const [nextIdx, setNextIdx] = useState(null)
-  const [animTrigger, setAnimTrigger] = useState(false)
-
-  const startTransition = (toIdx) => {
+  const goNext = () => {
     if (!totalImages) return
-    if (transitioning) return
-    const safeToIdx = ((toIdx % totalImages) + totalImages) % totalImages
-    if (safeToIdx === currentIdx) return
-    setPrevIdx(currentIdx)
-    setNextIdx(safeToIdx)
-    setTransitioning(true)
-    setAnimTrigger(false)
-    requestAnimationFrame(() => setAnimTrigger(true))
-    setTimeout(() => {
-      setCurrentIdx(safeToIdx)
-      setTransitioning(false)
-      setPrevIdx(null)
-      setNextIdx(null)
-      setAnimTrigger(false)
-    }, 300)
+    setCurrentIdx((prevIdx) => (prevIdx + 1) % totalImages)
   }
 
-  const goNext = () => startTransition(currentIdx + 1)
-  const goPrev = () => startTransition(currentIdx - 1)
-
-  const getKbClass = (idx) => {
-    const dirs = ["kb-tl", "kb-tr", "kb-bl", "kb-br"]
-    const i = typeof idx === "number" ? idx : 0
-    return dirs[((i % dirs.length) + dirs.length) % dirs.length]
+  const goPrev = () => {
+    if (!totalImages) return
+    setCurrentIdx((prevIdx) => (prevIdx - 1 + totalImages) % totalImages)
   }
 
   const rawChildren = selectedItem?.content?.[0]?.children || []
@@ -470,57 +447,42 @@ export default function SharedDetailsView({
         <h2 className="text-2xl font-bold mb-4 text-center text-[#0E5671]">{itemTitle}</h2>
 
         {imageUrls.length > 0 ? (
-          <div
-            className="relative w-full mb-4 rounded shadow overflow-hidden"
-          >
-            {transitioning ? (
-              <>
-                <img
-                  src={imageUrls[prevIdx] || "/placeholder.svg"}
-                  alt={`${itemTitle} image ${Number(prevIdx) + 1}`}
-                  className={`absolute inset-0 w-full h-full object-cover select-none kb-img ${getKbClass(prevIdx)}`}
-                  style={{
-                    opacity: animTrigger ? 0 : 1,
-                    transition: "opacity 600ms ease",
-                  }}
-                  draggable={false}
-                />
-                <img
-                  src={imageUrls[nextIdx] || "/placeholder.svg"}
-                  alt={`${itemTitle} image ${Number(nextIdx) + 1}`}
-                  className={`absolute inset-0 w-full h-full object-cover select-none kb-img ${getKbClass(nextIdx)}`}
-                  style={{
-                    opacity: animTrigger ? 1 : 0,
-                    transition: "opacity 600ms ease",
-                  }}
-                  draggable={false}
-                />
-              </>
-            ) : (
-              <img
-                src={imageUrls[currentIdx] || "/placeholder.svg"}
-                alt={`${itemTitle} image ${currentIdx + 1}`}
-                className={`w-full object-cover select-none kb-img ${getKbClass(currentIdx)}`}
-                draggable={false}
-              />
-            )}
-            {/* Left overlay button: displays '>' and goes to previous image as requested */}
+          <div className="relative w-full mb-4 rounded shadow overflow-hidden" style={{ height: '300px' }}>
+            <img
+              src={imageUrls[currentIdx] || "/placeholder.svg"}
+              alt={`${itemTitle} image ${currentIdx + 1}`}
+              className="w-full h-full object-cover select-none"
+              draggable={false}
+            />
+            {/* Previous button */}
             <button
               type="button"
               aria-label="Previous image"
-              style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '20%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', color: '#ffffff', fontSize: '1.875rem', background: 'transparent', border: 'none', outline: 'none', cursor: 'pointer' }}
+              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
+              style={{ 
+                top: '50%', 
+                left: '0', 
+                transform: 'translateY(-50%)',
+                zIndex: 10
+              }}
               onClick={(e) => { e.stopPropagation(); goPrev() }}
             >
-              <span>&gt;</span>
+              <span>‹</span>
             </button>
-            {/* Right overlay button: displays '<' and goes to next image as requested */}
+            {/* Next button */}
             <button
               type="button"
               aria-label="Next image"
-              style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '20%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', color: '#ffffff', fontSize: '1.875rem', background: 'transparent', border: 'none', outline: 'none', cursor: 'pointer' }}
+              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
+              style={{ 
+                top: '50%', 
+                right: '0', 
+                transform: 'translateY(-50%)',
+                zIndex: 10
+              }}
               onClick={(e) => { e.stopPropagation(); goNext() }}
             >
-              <span>&lt;</span>
+              <span>›</span>
             </button>
             <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
               {currentIdx + 1} / {totalImages}
@@ -551,17 +513,6 @@ export default function SharedDetailsView({
 
         {showMapInPanel && <MapView />}
       </div>
-      <style jsx>{`
-        .kb-img { will-change: transform; transform-origin: center; }
-        .kb-tl { animation: kb-tl 12s ease-in-out forwards; }
-        .kb-tr { animation: kb-tr 12s ease-in-out forwards; }
-        .kb-bl { animation: kb-bl 12s ease-in-out forwards; }
-        .kb-br { animation: kb-br 12s ease-in-out forwards; }
-        @keyframes kb-tl { from { transform: scale(1.05) translate3d(2%, 2%, 0); } to { transform: scale(1.2) translate3d(-2%, -2%, 0); } }
-        @keyframes kb-tr { from { transform: scale(1.05) translate3d(-2%, 2%, 0); } to { transform: scale(1.2) translate3d(2%, -2%, 0); } }
-        @keyframes kb-bl { from { transform: scale(1.05) translate3d(2%, -2%, 0); } to { transform: scale(1.2) translate3d(-2%, 2%, 0); } }
-        @keyframes kb-br { from { transform: scale(1.05) translate3d(-2%, -2%, 0); } to { transform: scale(1.2) translate3d(2%, 2%, 0); } }
-      `}</style>
     </div>
   )
 }
