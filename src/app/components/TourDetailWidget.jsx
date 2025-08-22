@@ -3,7 +3,7 @@ import React from 'react';
 
 import { useEffect, useState } from "react"
 
-import SharedDetailsView from "./SharedDetailsView"
+import ChildrenView from "./ChildrenView"
 
 export default function TourDetailWidget() {
   const apiKey = typeof window !== "undefined" && window.API_KEY ? String(window.API_KEY) : ""
@@ -482,7 +482,7 @@ export default function TourDetailWidget() {
           {(selectedChild || selectedItem) && (
             <>
               <div className="mt-16 overflow-y-auto bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
-                <SharedDetailsView
+                <ChildrenView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
                   limitReached={limitReached}
@@ -492,7 +492,7 @@ export default function TourDetailWidget() {
                 />
               </div>
               <div className="mt-16 bg-white rounded-lg border border-gray-300 shadow-sm p-3" style={{height:'402px'}}>
-                <SharedDetailsView
+                <ChildrenView
                   selectedChild={selectedChild}
                   selectedItem={selectedItem}
                   limitReached={limitReached}
