@@ -71,8 +71,7 @@ export default function SharedDetailsView({
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
   }
 
-  const apiKey =
-    (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
+  const apiKey = "AIzaSyCYPYRcmwn55zmHm0s-XJsLojbVOEN3kkc"
 
   function loadGoogleMaps(key) {
     if (typeof window === "undefined") return Promise.resolve()
@@ -253,6 +252,7 @@ export default function SharedDetailsView({
       if (!directionsRendererRef.current) {
         directionsRendererRef.current = new google.maps.DirectionsRenderer({
           suppressMarkers: true,
+          preserveViewport: true,
           polylineOptions: {
             strokeColor: '#0E5671',
             strokeOpacity: 0.95,
