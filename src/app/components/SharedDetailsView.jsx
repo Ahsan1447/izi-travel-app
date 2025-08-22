@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react"
+import React, { useRef, useEffect } from "react"
 
 export default function SharedDetailsView({
   selectedChild,
@@ -12,11 +12,11 @@ export default function SharedDetailsView({
   mapOnly = false,
   onSelectMarker = () => {},
 }) {
-  const [isSatelliteView, setIsSatelliteView] = useState(false)
   const mapRef = useRef(null)
   const mapInstanceRef = useRef(null)
-  const markersLayerRef = useRef(null)
-  const tryCountRef = useRef(0)
+  const markersRef = useRef([])
+  const directionsRendererRef = useRef(null)
+  const directionsServiceRef = useRef(null)
 
   if (limitReached) return null
   if (!selectedChild && !selectedItem) return null
@@ -71,270 +71,54 @@ export default function SharedDetailsView({
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
   }
 
-  // Create or recreate the Leaflet map instance. Extracted to a helper so we can force
-  // a full recreate when selection changes (some Leaflet instances don't refresh layers
-  // reliably otherwise).
-  const createOrRecreateMap = () => {
-    if (typeof window === 'undefined' || !mapRef.current || !window.L) return
-    const L = window.L
+  const apiKey =
+    (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
 
+  function loadGoogleMaps(key) {
+    if (typeof window === "undefined") return Promise.resolve()
+    if (window.google && window.google.maps) return Promise.resolve()
+    if (window.__gmapsInitPromise) return window.__gmapsInitPromise
+    if (!key) {
+      console.warn("Google Maps API key is not set. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY or window.GOOGLE_MAPS_API_KEY.")
+    }
+    const src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key || "")}&v=weekly`
+    window.__gmapsInitPromise = new Promise((resolve, reject) => {
+      // Avoid injecting duplicate script tags
+      const existing = Array.from(document.getElementsByTagName("script")).find(s => s.src && s.src.startsWith("https://maps.googleapis.com/maps/api/js"))
+      if (existing) {
+        existing.addEventListener("load", () => resolve())
+        existing.addEventListener("error", (e) => reject(e))
+        return
+      }
+      const script = document.createElement("script")
+      script.src = src
+      script.async = true
+      script.defer = true
+      script.onload = () => resolve()
+      script.onerror = (e) => reject(e)
+      document.head.appendChild(script)
+    })
+    return window.__gmapsInitPromise
+  }
+
+  function clearMapArtifacts() {
+    // Clear markers
     try {
-      if (mapInstanceRef.current) {
-        try { mapInstanceRef.current.remove() } catch (_) {}
-        mapInstanceRef.current = null
-        markersLayerRef.current = null
+      markersRef.current.forEach(m => m.setMap(null))
+      markersRef.current = []
+    } catch (_) {}
+    // Clear route
+    try {
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null)
+        directionsRendererRef.current = null
       }
-
-      const map = L.map(mapRef.current, { zoomControl: true, zoomAnimation: true })
-
-      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      })
-      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      })
-      osmLayer.addTo(map)
-
-      mapInstanceRef.current = map
-      markersLayerRef.current = L.layerGroup().addTo(map)
-
-      const baseMaps = { Map: osmLayer, Satellite: satelliteLayer }
-      L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map)
-
-      try { map.setView([0, 0], 2) } catch (_) {}
-
-      const ensureSized = (attempt = 0) => {
-        try { map.invalidateSize() } catch (_) {}
-        try {
-          const size = map.getSize ? map.getSize() : { x: 0, y: 0 }
-          if ((size.x === 0 || size.y === 0) && attempt < 8) {
-            setTimeout(() => ensureSized(attempt + 1), 150)
-            return
-          }
-        } catch (_) {}
-        updateMarkers()
-      }
-      setTimeout(() => ensureSized(0), 150)
     } catch (_) {}
   }
 
-  // Initialize leaflet only on client and when map is shown. Wait for the map container to exist
-  // (mapRef.current) before attempting to load/initialize Leaflet. This ensures single child/reference
-  // selections (where the container may appear only after state change) still initialize correctly.
-  useEffect(() => {
-    if (!mapOnly && !showMapInPanel) return
-    let mounted = true
-
-    function initMap() {
-      if (!mapRef.current || !window.L) return
-
-      const L = window.L
-
-      // Remove existing map if it exists
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-      }
-
-      // Create new map instance
-      const map = L.map(mapRef.current, {
-        zoomControl: true,
-        zoomAnimation: true,
-      })
-
-      // Base layers
-      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      })
-      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      })
-      osmLayer.addTo(map)
-
-      mapInstanceRef.current = map
-      markersLayerRef.current = L.layerGroup().addTo(map)
-
-      // Set up layer control
-      const baseMaps = { Map: osmLayer, Satellite: satelliteLayer }
-
-      // Add layer control to map
-      L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map)
-
-      // Set a default view so tiles start loading; later updates will adjust
-      try { map.setView([0, 0], 2) } catch (_) {}
-
-      // Ensure map size is calculated correctly
-      const ensureSized = (attempt = 0) => {
-        try { map.invalidateSize() } catch (_) {}
-        try {
-          const size = map.getSize ? map.getSize() : { x: 0, y: 0 }
-          if ((size.x === 0 || size.y === 0) && attempt < 8) {
-            setTimeout(() => ensureSized(attempt + 1), 150)
-            return
-          }
-        } catch (_) {}
-        updateMarkers()
-      }
-      setTimeout(() => ensureSized(0), 150)
-    }
-
-    const ensureContainerAndLoad = () => {
-      if (!mounted) return
-      if (!mapRef.current) {
-        // Retry shortly until the container exists (it may be rendered after state change)
-        setTimeout(ensureContainerAndLoad, 100)
-        return
-      }
-
-      // Load leaflet css/script if not present
-      if (typeof window !== 'undefined' && !window.L) {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-        document.head.appendChild(link)
-
-        const script = document.createElement('script')
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-        script.async = true
-        script.onload = () => {
-          setTimeout(initMap, 50)
-        }
-        document.body.appendChild(script)
-      } else {
-        // Ensure Leaflet CSS is present even if script is already loaded
-        try {
-          const hasLeafletCss = !!document.querySelector('link[href*="leaflet.css"]')
-          if (!hasLeafletCss) {
-            const link = document.createElement('link')
-            link.rel = 'stylesheet'
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-            document.head.appendChild(link)
-          }
-        } catch (_) {}
-        initMap()
-      }
-    }
-
-    ensureContainerAndLoad()
-
-    // Cleanup on unmount
-    return () => {
-      mounted = false
-      if (mapInstanceRef.current) {
-        try {
-          mapInstanceRef.current.remove()
-        } catch (_) {}
-        mapInstanceRef.current = null
-        markersLayerRef.current = null
-      }
-    }
-  }, [mapOnly, showMapInPanel, selectionVersion])
-
-  // If selected item/child changes while the map is mounted, ensure the map updates.
-  // Some browsers / Leaflet instances may not update layers properly when props change,
-  // so recreate the map if it's missing, otherwise refresh markers.
-  useEffect(() => {
-    if (!mapOnly && !showMapInPanel) return
-    // Recreate map only when parent selection changes; for child selection, just update markers
-    try {
-      createOrRecreateMap()
-    } catch (_) {
-      // fallback: attempt to update markers
-      setTimeout(() => {
-        try { updateMarkers() } catch (_) {}
-      }, 50)
-    }
-  }, [selectedItem?.uuid, selectionVersion])
-
-  // Update markers when selectedItem or selectedChild changes
-  useEffect(() => {
-    if (!mapInstanceRef.current) return
-    updateMarkers()
-  }, [selectedItem, selectedChild, selectionVersion])
-
-  // Ensure map shows and updates when a child is selected: if map not ready, create it; otherwise update markers
-  useEffect(() => {
-    if (!mapOnly && !showMapInPanel) return
-    if (!selectedChild) return
-    if (!mapInstanceRef.current) {
-      try { createOrRecreateMap() } catch (_) {}
-    } else {
-      try { updateMarkers() } catch (_) {}
-    }
-  }, [selectedChild?.uuid])
-
-  const updateMarkers = () => {
-    const L = window.L
-    const map = mapInstanceRef.current
-    const layer = markersLayerRef.current
-
-    if (!map || !layer || !L) return
-
-    // Ensure Leaflet knows the correct container size
-    try {
-      map.invalidateSize()
-    } catch (_) {}
-
-    // Clear existing markers
-    layer.clearLayers()
-
-    // Get all points (children/references)
-    const points = getPoints()
-
-    // If no points available from parent but selected child has coordinates, show that single child marker in gray
-    const childHasCoords = selectedChild &&
-      Number.isFinite(Number(selectedChild.location?.latitude)) &&
-      Number.isFinite(Number(selectedChild.location?.longitude))
-
-    if (!points.length && childHasCoords) {
-      const lat = Number(selectedChild.location.latitude)
-      const lng = Number(selectedChild.location.longitude)
-      const createPinHtml = (index, size = 36, pinColor = 'red', numberColor = '#ffffff') => `
-        <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="pinShadowSingle" x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/>
-            </filter>
-          </defs>
-          <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadowSingle)"/>
-          <circle cx="18" cy="13" r="7" fill="red"/>
-          <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">1</text>
-        </svg>`
-
-      const icon = L.divIcon({ html: createPinHtml(1), className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
-      const m = L.marker([lat, lng], { icon })
-      m.addTo(layer)
-      m.bindPopup(`<b>${selectedChild.title || 'Untitled'}</b>`)
-      try { map.invalidateSize() } catch (_) {}
-      try { map.setView([lat, lng], 17) } catch (_) {}
-      return
-    }
-
-    if (!points.length && latitude && longitude) {
-      // Fallback: show marker for selectedItem if no children/references
-      const createPinHtml = (index, size = 36, pinColor = '#0E5671') => `
-        <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}"/>
-          <circle cx="18" cy="13" r="7" fill="red"/>
-        </svg>`
-
-      const icon = L.divIcon({ html: createPinHtml(0, 36, '#0E5671'), className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
-      const marker = L.marker([latitude, longitude], { icon })
-      marker.addTo(layer)
-      marker.bindPopup(`<b>${itemTitle || 'Untitled'}</b>`)
-      map.setView([latitude, longitude], 15)
-      return
-    }
-
-    if (!points.length) {
-      // No points and no item coords handled below; if neither, fallback to world view
-      if (!childHasCoords && !(latitude && longitude)) {
-        try { map.setView([0, 0], 2) } catch (_) {}
-      }
-      return
-    }
-
-  // Create numbered teardrop pin icons for each point
-  const createPinHtml = (index, size = 36, pinColor = '#D60D46', numberColor = '#0E5671') => `
+  function createMarkerIcon(index, size = 36, options = { pinColor: "#D60D46", numberColor: "#0E5671", innerCircleColor: "red" }) {
+    const { pinColor, numberColor, innerCircleColor } = options
+    const svg = `
       <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="pinShadow${index}" x="-50%" y="-50%" width="200%" height="200%">
@@ -342,67 +126,274 @@ export default function SharedDetailsView({
           </filter>
         </defs>
         <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="${pinColor}" filter="url(#pinShadow${index})"/>
-        <circle cx="18" cy="13" r="7" fill="red"/>
-    <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
+        <circle cx="18" cy="13" r="7" fill="${innerCircleColor}"/>
+        <text x="18" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="${numberColor}" font-family="Arial, sans-serif">${index}</text>
       </svg>`
+    return {
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+      scaledSize: new window.google.maps.Size(size, size),
+      anchor: new window.google.maps.Point(size / 2, size),
+    }
+  }
 
+  function createSingleMarkerIcon() {
+    const size = 36
+    const svg = `
+      <svg width="${size}" height="${size}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pinShadowSingle" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/>
+          </filter>
+        </defs>
+        <path d="M18 1c-5.523 0-10 4.477-10 10 0 7 10 19 10 19s10-12 10-19c0-5.523-4.477-10-10-10z" fill="#0E5671" filter="url(#pinShadowSingle)"/>
+        <circle cx="18" cy="13" r="7" fill="red"/>
+      </svg>`
+    return {
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+      scaledSize: new window.google.maps.Size(size, size),
+      anchor: new window.google.maps.Point(size / 2, size),
+    }
+  }
+
+  function updateMap() {
+    const google = window.google
+    const map = mapInstanceRef.current
+    if (!google || !map) return
+
+    clearMapArtifacts()
+
+    const points = getPoints()
+
+    // If no points but child has coords -> show single child marker
+    const childHasCoords = selectedChild &&
+      Number.isFinite(Number(selectedChild.location?.latitude)) &&
+      Number.isFinite(Number(selectedChild.location?.longitude))
+
+    if (!points.length && childHasCoords) {
+      const lat = Number(selectedChild.location.latitude)
+      const lng = Number(selectedChild.location.longitude)
+      const marker = new google.maps.Marker({
+        position: { lat, lng },
+        icon: createMarkerIcon(1, 42, { pinColor: "#6B7280", numberColor: "#ffffff", innerCircleColor: "#6B7280" }),
+        map,
+      })
+      markersRef.current.push(marker)
+      const infowindow = new google.maps.InfoWindow({ content: `<b>${selectedChild.title || 'Untitled'}</b>` })
+      marker.addListener('click', () => {
+        infowindow.open({ anchor: marker, map })
+        map.setZoom(18)
+        map.panTo({ lat, lng })
+        onSelectMarker(selectedChild, selectedItem)
+      })
+      map.setZoom(18)
+      map.panTo({ lat, lng })
+      return
+    }
+
+    if (!points.length && latitude && longitude) {
+      // Fallback to selected item location
+      const lat = Number(latitude)
+      const lng = Number(longitude)
+      const marker = new google.maps.Marker({
+        position: { lat, lng },
+        icon: createSingleMarkerIcon(),
+        map,
+      })
+      markersRef.current.push(marker)
+      const infowindow = new google.maps.InfoWindow({ content: `<b>${itemTitle || 'Untitled'}</b>` })
+      marker.addListener('click', () => {
+        infowindow.open({ anchor: marker, map })
+        map.setZoom(15)
+        map.panTo({ lat, lng })
+      })
+      map.setZoom(15)
+      map.panTo({ lat, lng })
+      return
+    }
+
+    if (!points.length) {
+      map.setZoom(2)
+      map.panTo({ lat: 0, lng: 0 })
+      return
+    }
+
+    // Place numbered markers
+    const bounds = new google.maps.LatLngBounds()
     const markers = points.map((p) => {
       const isSelected = selectedChild && p.uuid === selectedChild.uuid
-      const pinColor = isSelected ? 'red' : '#D60D46'
+      const pinColor = isSelected ? '#6B7280' : '#D60D46'
       const numberColor = isSelected ? '#ffffff' : '#0E5671'
-      const html = createPinHtml(p.index, 36, pinColor, numberColor)
-      const icon = L.divIcon({ html, className: '', iconSize: [36, 36], iconAnchor: [18, 36] })
-      const m = L.marker([p.lat, p.lng], { icon })
+      const size = isSelected ? 42 : 36
+      const innerCircleColor = isSelected ? '#6B7280' : 'red'
+      const marker = new google.maps.Marker({
+        position: { lat: p.lat, lng: p.lng },
+        icon: createMarkerIcon(p.index, size, { pinColor, numberColor, innerCircleColor }),
+        map,
+      })
+      markersRef.current.push(marker)
+      bounds.extend(new google.maps.LatLng(p.lat, p.lng))
 
-      m.bindPopup(`<b>${p.title || 'Untitled'}</b>`)
-
-      m.on('click', () => {
-        map.setView([p.lat, p.lng], 17)
+      const infowindow = new google.maps.InfoWindow({ content: `<b>${p.title || 'Untitled'}</b>` })
+      marker.addListener('click', () => {
+        infowindow.open({ anchor: marker, map })
+        map.setZoom(18)
+        map.panTo({ lat: p.lat, lng: p.lng })
         onSelectMarker(p.raw, selectedItem)
       })
-
-      m.addTo(layer)
-      return m
+      return marker
     })
 
-    // If this selection is a tour, draw a styled route: white outline under a teal main line
-    if ((selectedItem?.type === 'tour' || selectedItem?.type === 'museum') && points.length >= 2) {
-      const latlngs = points.map((p) => [p.lat, p.lng])
-      // Outline for contrast on map tiles
-      const outline = L.polyline(latlngs, { color: '#ffffff', weight: 8, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
-      outline.addTo(layer)
-      // Main route line
-      const main = L.polyline(latlngs, { color: '#0E5671', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
-      main.addTo(layer)
-      // Ensure markers render above the route so numbers remain visible
-      try {
-        markers.forEach((m) => { try { m.bringToFront && m.bringToFront() } catch (_) {} })
-      } catch (_) {}
+    const isTourLike = (selectedItem?.type === 'tour' || selectedItem?.type === 'museum') && points.length >= 2
+
+    if (isTourLike) {
+      // Use Google DirectionsService to compute route through waypoints
+      if (!directionsServiceRef.current) {
+        directionsServiceRef.current = new google.maps.DirectionsService()
+      }
+      if (!directionsRendererRef.current) {
+        directionsRendererRef.current = new google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+          polylineOptions: {
+            strokeColor: '#0E5671',
+            strokeOpacity: 0.95,
+            strokeWeight: 4,
+          }
+        })
+      }
+      directionsRendererRef.current.setMap(map)
+
+      const origin = { lat: points[0].lat, lng: points[0].lng }
+      const destination = { lat: points[points.length - 1].lat, lng: points[points.length - 1].lng }
+      const waypoints = points.slice(1, -1).map(p => ({ location: { lat: p.lat, lng: p.lng }, stopover: true }))
+
+      directionsServiceRef.current.route(
+        {
+          origin,
+          destination,
+          waypoints,
+          travelMode: google.maps.TravelMode.DRIVING,
+          optimizeWaypoints: false,
+          provideRouteAlternatives: false,
+        },
+        (result, status) => {
+          if (status === 'OK' && result) {
+            directionsRendererRef.current.setDirections(result)
+          } else {
+            // Fallback to straight polyline if Directions fails
+            try {
+              const polyline = new google.maps.Polyline({
+                path: points.map(p => ({ lat: p.lat, lng: p.lng })),
+                geodesic: true,
+                strokeColor: '#0E5671',
+                strokeOpacity: 0.95,
+                strokeWeight: 4,
+                map,
+              })
+              // Keep reference so it can be cleared next update
+              directionsRendererRef.current = {
+                setMap: (m) => polyline.setMap(m),
+              }
+            } catch (_) {}
+          }
+        }
+      )
     }
 
     const selectedPoint = selectedChild && points.find((p) => p.uuid === selectedChild.uuid)
     if (selectedPoint) {
-      try { map.invalidateSize() } catch (_) {}
-      try {
-        map.setView([selectedPoint.lat, selectedPoint.lng], 17)
-      } catch (_) {}
+      map.setZoom(18)
+      map.panTo({ lat: selectedPoint.lat, lng: selectedPoint.lng })
     } else {
       try {
-        const group = L.featureGroup(markers)
-        try {
-          map.invalidateSize()
-          map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 17 })
-        } catch (_) {
-          map.setView([points[0].lat, points[0].lng], 13)
-        }
+        map.fitBounds(bounds)
+        // Cap max zoom after fitting bounds
+        const listener = google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+          if (map.getZoom() > 17) map.setZoom(17)
+        })
+        // Ensure listener is not leaked on subsequent updates
+        setTimeout(() => google.maps.event.removeListener(listener), 2000)
       } catch (_) {
-        try {
-          map.invalidateSize()
-          map.setView([points[0].lat, points[0].lng], 13)
-        } catch (_) {}
+        map.setZoom(13)
+        map.panTo({ lat: points[0].lat, lng: points[0].lng })
       }
     }
+
+    // Make sure markers stay visible above route
+    try { markers.forEach(m => m.setZIndex(google.maps.Marker.MAX_ZINDEX + 1)) } catch (_) {}
   }
+
+  function initMap() {
+    const google = window.google
+    if (!mapRef.current || !google) return
+
+    // Dispose previous if any
+    try { if (mapInstanceRef.current) mapInstanceRef.current = null } catch (_) {}
+
+    const map = new google.maps.Map(mapRef.current, {
+      center: { lat: 0, lng: 0 },
+      zoom: 2,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: true,
+      streetViewControl: false,
+      fullscreenControl: true,
+    })
+
+    mapInstanceRef.current = map
+    updateMap()
+  }
+
+  // Initialize Google Maps when needed and container is present
+  useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
+    let mounted = true
+
+    const ensure = async () => {
+      if (!mounted) return
+      if (!mapRef.current) {
+        setTimeout(ensure, 100)
+        return
+      }
+      try {
+        await loadGoogleMaps(apiKey)
+        if (!mounted) return
+        initMap()
+      } catch (e) {
+        console.error("Failed to load Google Maps API", e)
+      }
+    }
+
+    ensure()
+
+    return () => {
+      mounted = false
+      clearMapArtifacts()
+      try { if (directionsRendererRef.current) directionsRendererRef.current.setMap(null) } catch (_) {}
+      directionsRendererRef.current = null
+      directionsServiceRef.current = null
+      mapInstanceRef.current = null
+    }
+  }, [mapOnly, showMapInPanel, selectionVersion])
+
+  // Recenter/update when the selected parent changes
+  useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
+    if (!mapInstanceRef.current) return
+    try { updateMap() } catch (_) {}
+  }, [selectedItem?.uuid, selectionVersion])
+
+  // Update markers/routes when child selection changes
+  useEffect(() => {
+    if (!mapInstanceRef.current) return
+    try { updateMap() } catch (_) {}
+  }, [selectedItem, selectedChild, selectionVersion])
+
+  // Ensure map shows when a child is selected and map exists
+  useEffect(() => {
+    if (!mapOnly && !showMapInPanel) return
+    if (!selectedChild) return
+    if (!mapInstanceRef.current) return
+    try { updateMap() } catch (_) {}
+  }, [selectedChild?.uuid])
 
   const MapView = () => (
     <div className="relative w-full h-full rounded overflow-hidden border border-white bg-white">
@@ -445,8 +436,7 @@ export default function SharedDetailsView({
           </div>
         ) : null}
 
-  {/* Show the map panel when requested; default view is set during initialization */}
-  {showMapInPanel && <MapView />}
+        {showMapInPanel && <MapView />}
       </div>
     </div>
   )
