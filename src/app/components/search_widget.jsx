@@ -830,7 +830,18 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                                              </div>
+                        <div className="flex items-center gap-2">
+                          {expandedIdx.type === "tour" && expandedIdx.idx === idx ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                              <path d="M5 15l7-7 7 7" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                              <path d="M19 9l-7 7-7-7" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
                       {/* Children list below the selected tour */}
                       {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
                         <div className="bg-custom-blue-50">
@@ -926,7 +937,18 @@ export default function SearchWidget() {
                             {item.title}
                           </span>
                         </div>
-                                              </div>
+                        <div className="flex items-center gap-2">
+                          {expandedIdx.type === "museum" && expandedIdx.idx === idx ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                              <path d="M5 15l7-7 7 7" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                              <path d="M19 9l-7 7-7-7" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
                       {/* Children list below the selected museum */}
                       {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
                         <div className="bg-gray-50 py-2 border-purple-500">

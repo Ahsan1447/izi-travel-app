@@ -315,7 +315,18 @@ export default function TourDetailWidget() {
                               {item.title}
                             </span>
                           </div>
-                                                  </div>
+                          <div className="flex items-center gap-2">
+                            {expandedIdx.type === "tour" && expandedIdx.idx === idx ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                                <path d="M5 15l7-7 7 7" />
+                              </svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                                <path d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
                           <div>
@@ -388,12 +399,23 @@ export default function TourDetailWidget() {
                               {item.title}
                             </span>
                           </div>
-                          <button
-                            className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
-                            onClick={(e) => { e.stopPropagation(); handleViewDetails(item, "museum", idx); }}
-                          >
-                            Visit Museum
-                          </button>
+                          <div className="flex items-center gap-2">
+                            {expandedIdx.type === "museum" && expandedIdx.idx === idx ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                                <path d="M5 15l7-7 7 7" />
+                              </svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
+                                <path d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                            <button
+                              className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
+                              onClick={(e) => { e.stopPropagation(); handleViewDetails(item, "museum", idx); }}
+                            >
+                              Visit Museum
+                            </button>
+                          </div>
                         </div>
                         {/* Children list below the selected museum */}
                         {expandedIdx.type === "museum" && expandedIdx.idx === idx && (
