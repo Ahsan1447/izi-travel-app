@@ -275,6 +275,10 @@ export default function TourDetailWidget() {
   return (
     <main className="bg-gray-100 text-black">
       <div className="w-full max-w-full mx-auto py-6 relative overflow-hidden">
+        <style>{`
+          .tdw-chevron { margin-left: auto; width: 24px; height: 24px; border-radius: 9999px; border: 1px solid #d1d5db; color: #6b7280; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 10px; }
+          .tdw-chevron--selected { border-color: #ffffff; color: #ffffff; }
+        `}</style>
         {error && <div className="text-red-600 mb-4 bg-red-100 p-3 rounded border border-red-300">{error}</div>}
 
         {/* Limit reached message for details */}
@@ -316,16 +320,18 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {expandedIdx.type === "tour" && expandedIdx.idx === idx ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
-                                <path d="M5 15l7-7 7 7" />
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
-                                <path d="M19 9l-7 7-7-7" />
-                              </svg>
-                            )}
-                          </div>
+                            <span className={`tdw-chevron ${selectedItem && selectedItem.uuid === item.uuid ? "tdw-chevron--selected" : ""} shrink-0`}>
+                              {expandedIdx.type === "tour" && expandedIdx.idx === idx ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+                                  <path d="M5 15l7-7 7 7" />
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+                                  <path d="M19 9l-7 7-7-7" />
+                                </svg>
+                              )}
+                            </span>
+                                                      </div>
                         </div>
                         {/* Children list below the selected tour */}
                         {expandedIdx.type === "tour" && expandedIdx.idx === idx && (
@@ -360,9 +366,7 @@ export default function TourDetailWidget() {
                                         )}
                                         <span className="font-medium truncate">{child.title || "No title"}</span>
 
-                                        <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-500"}`} style={{marginRight: '10px'}}
-                                        >
+                                        <span className={`tdw-chevron ${isSelected ? "tdw-chevron--selected" : ""}`}>
                                           ›
                                         </span>
                                         {fetchingChildDetails && isSelected && (
@@ -400,17 +404,19 @@ export default function TourDetailWidget() {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {expandedIdx.type === "museum" && expandedIdx.idx === idx ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
-                                <path d="M5 15l7-7 7 7" />
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${selectedItem && selectedItem.uuid === item.uuid ? "text-white" : "text-gray-600"} w-4 h-4`} aria-hidden="true">
-                                <path d="M19 9l-7 7-7-7" />
-                              </svg>
-                            )}
+                            <span className={`tdw-chevron ${selectedItem && selectedItem.uuid === item.uuid ? "tdw-chevron--selected" : ""} shrink-0`}>
+                              {expandedIdx.type === "museum" && expandedIdx.idx === idx ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+                                  <path d="M5 15l7-7 7 7" />
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+                                  <path d="M19 9l-7 7-7-7" />
+                                </svg>
+                              )}
+                            </span>
                             <button
-                              className="bg-custom-red-50 hover:bg-custom-blue-50 text-white px-4 py-1 rounded text-sm truncate"
+                              className={`px-3 py-1 rounded text-sm ${selectedItem && selectedItem.uuid === item.uuid ? "bg-white text-[#0E5671]" : "bg-[#0E5671] text-white hover:bg-[#083c4d]"}`}
                               onClick={(e) => { e.stopPropagation(); handleViewDetails(item, "museum", idx); }}
                             >
                               Visit Museum
@@ -449,9 +455,7 @@ export default function TourDetailWidget() {
                                           </div>
                                         )}
                                         <span className="font-medium">{child.title || "No title"}</span>
-                                        <span
-                                          className={`ml-auto w-6 h-6 rounded-full border inline-flex items-center justify-center ${isSelected ? "border-white text-white" : "border-gray-300 text-gray-400"}`}
-                                        >
+                                        <span className={`tdw-chevron ${isSelected ? "tdw-chevron--selected" : ""}`}>
                                           ›
                                         </span>
                                         {fetchingChildDetails && isSelected && (

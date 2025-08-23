@@ -458,8 +458,9 @@ export default function SharedDetailsView({
             <button
               type="button"
               aria-label="Previous image"
-              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
+              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl rounded-full focus:outline-none transition-all duration-200"
               style={{ 
+                background: "transparent",
                 top: '50%', 
                 left: '0', 
                 transform: 'translateY(-50%)',
@@ -473,8 +474,9 @@ export default function SharedDetailsView({
             <button
               type="button"
               aria-label="Next image"
-              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
-              style={{ 
+              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl rounded-full focus:outline-none transition-all duration-200"
+              style={{
+                background: "transparent",
                 top: '50%', 
                 right: '0', 
                 transform: 'translateY(-50%)',
@@ -484,7 +486,7 @@ export default function SharedDetailsView({
             >
               <span>›</span>
             </button>
-            <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute bottom-2 right-2 text-white text-xs px-2 py-1 rounded">
               {currentIdx + 1} / {totalImages}
             </div>
           </div>

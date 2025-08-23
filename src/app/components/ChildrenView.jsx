@@ -444,6 +444,14 @@ export default function SharedDetailsView({
   return (
     <div className="h-full overflow-y-auto">
       <div className="flex flex-col items-center w-full divide-y divide-white">
+        <style>
+          {`
+            .cv-image-nav-btn { position: absolute; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 24px; background: rgba(0,0,0,0); border: none; border-radius: 9999px; cursor: pointer; transition: background-color 200ms ease; top: 50%; transform: translateY(-50%); z-index: 10; }
+            .cv-image-nav-btn:hover { background: rgba(0,0,0,0.2); }
+            .cv-image-nav-btn.cv-left { left: 8px; }
+            .cv-image-nav-btn.cv-right { right: 8px; }
+          `}
+        </style>
         <h2 className="text-2xl font-bold mb-4 text-center text-[#0E5671]">{itemTitle}</h2>
 
         {imageUrls.length > 0 ? (
@@ -458,13 +466,7 @@ export default function SharedDetailsView({
             <button
               type="button"
               aria-label="Previous image"
-              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
-              style={{ 
-                top: '50%', 
-                left: '0', 
-                transform: 'translateY(-50%)',
-                zIndex: 10
-              }}
+              className="cv-image-nav-btn cv-left"
               onClick={(e) => { e.stopPropagation(); goPrev() }}
             >
               <span>‹</span>
@@ -473,18 +475,12 @@ export default function SharedDetailsView({
             <button
               type="button"
               aria-label="Next image"
-              className="absolute w-10 h-10 flex items-center justify-center text-white text-2xl bg-black/30 hover:bg-black/50 rounded-full focus:outline-none transition-all duration-200"
-              style={{ 
-                top: '50%', 
-                right: '0', 
-                transform: 'translateY(-50%)',
-                zIndex: 10
-              }}
+              className="cv-image-nav-btn cv-right"
               onClick={(e) => { e.stopPropagation(); goNext() }}
             >
               <span>›</span>
             </button>
-            <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute bottom-2 right-2 text-white text-xs px-2 py-1 rounded" style={{background:"transparent/50"}}>
               {currentIdx + 1} / {totalImages}
             </div>
           </div>
